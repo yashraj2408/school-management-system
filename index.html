@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Management System | Multi-Role Portal (15 Teachers Round-Robin)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0B0F19;
+            --card-bg: rgba(20, 27, 45, 0.65);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --primary: #6366F1;
+            --primary-gradient: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #D946EF 100%);
+            --accent-cyan: #06B6D4;
+            --accent-emerald: #10B981;
+            --accent-amber: #F59E0B;
+            --accent-rose: #F43F5E;
+            --input-bg: rgba(11, 15, 25, 0.7);
+            --input-border: rgba(255, 255, 255, 0.12);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', 'Outfit', sans-serif; }
+
+        body {
+            background: var(--bg-base);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(217, 70, 239, 0.12) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
+            min-height: 100vh; color: var(--text-primary); padding: 1.75rem;
+        }
+
+        .container { max-width: 1380px; margin: 0 auto; }
+
+        .login-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(11, 15, 25, 0.92); backdrop-filter: blur(24px);
+            display: flex; align-items: center; justify-content: center; z-index: 9999;
+        }
+
+        .login-card {
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: 28px; padding: 3rem 2.5rem; width: 100%; max-width: 500px;
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.8), 0 0 40px rgba(99, 102, 241, 0.2);
+            text-align: center; position: relative; overflow: hidden;
+        }
+
+        .login-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--primary-gradient); }
+
+        .login-header h2 {
+            font-family: 'Outfit', sans-serif; font-size: 2rem; font-weight: 800;
+            background: linear-gradient(90deg, #38BDF8, #818CF8, #C084FC);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem;
+        }
+
+        .role-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin: 1.75rem 0; }
+        .role-option {
+            background: var(--input-bg); border: 1px solid var(--input-border);
+            border-radius: 14px; padding: 0.95rem; color: var(--text-secondary);
+            font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.25s ease;
+        }
+        .role-option:hover { color: var(--text-primary); border-color: rgba(99, 102, 241, 0.5); transform: translateY(-2px); }
+        .role-option.active {
+            background: var(--primary-gradient); color: #FFF; border-color: transparent;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4); transform: translateY(-2px);
+        }
+
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; text-align: left; margin-bottom: 1.25rem; }
+        label { font-size: 0.85rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        input, select {
+            background: var(--input-bg); border: 1px solid var(--input-border);
+            border-radius: 12px; padding: 0.85rem 1.1rem; color: var(--text-primary);
+            font-size: 0.95rem; outline: none; transition: all 0.2s ease;
+        }
+
+        .btn-submit {
+            width: 100%; background: var(--primary-gradient); color: #FFF;
+            font-size: 1rem; font-weight: 700; padding: 0.95rem; border: none;
+            border-radius: 14px; cursor: pointer; transition: all 0.25s ease;
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.5);
+        }
+
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--card-bg); backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border); border-radius: 20px;
+            padding: 1.25rem 1.75rem; margin-bottom: 1.75rem; box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        }
+        .logo { display: flex; align-items: center; gap: 1rem; }
+        .logo-icon {
+            width: 48px; height: 48px; background: var(--primary-gradient);
+            border-radius: 14px; display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 1.4rem; color: #FFF; box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+        .logo h2 {
+            font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800;
+            background: linear-gradient(90deg, #38BDF8, #818CF8, #C084FC);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .user-info-bar { display: flex; align-items: center; gap: 1rem; }
+        .user-role-badge {
+            background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.35);
+            color: #A5B4FC; padding: 0.5rem 1.1rem; border-radius: 30px; font-size: 0.85rem; font-weight: 700;
+        }
+        .btn-logout {
+            background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.35);
+            color: #FB7185; padding: 0.5rem 1.1rem; border-radius: 12px; font-size: 0.85rem;
+            font-weight: 700; cursor: pointer; transition: all 0.2s ease;
+        }
+
+        .tabs-nav {
+            display: flex; gap: 0.6rem; background: var(--card-bg); padding: 0.6rem;
+            border-radius: 18px; border: 1px solid var(--card-border); margin-bottom: 1.75rem; overflow-x: auto;
+        }
+        .tab-btn {
+            background: transparent; border: none; color: var(--text-secondary);
+            padding: 0.75rem 1.4rem; font-size: 0.9rem; font-weight: 700; border-radius: 12px;
+            cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
+        }
+        .tab-btn:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.05); }
+        .tab-btn.active { background: var(--primary-gradient); color: #FFF; box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4); }
+
+        .content-panel {
+            background: var(--card-bg); backdrop-filter: blur(24px);
+            border: 1px solid var(--card-border); border-radius: 24px;
+            padding: 2rem; box-shadow: 0 20px 45px rgba(0,0,0,0.5); min-height: 540px;
+        }
+
+        .portal-section { display: none; }
+        .portal-section.active { display: block; animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 1.25rem; border-radius: 14px; overflow: hidden; border: 1px solid var(--card-border); }
+        th, td { padding: 1rem 1.2rem; text-align: left; font-size: 0.9rem; }
+        th { color: var(--text-secondary); font-weight: 700; background: rgba(15, 23, 42, 0.6); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; border-bottom: 1px solid var(--card-border); }
+        td { border-bottom: 1px solid rgba(255, 255, 255, 0.04); background: rgba(15, 23, 42, 0.25); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255, 255, 255, 0.03); }
+
+        .badge { padding: 0.35rem 0.85rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.3px; }
+        .badge-success { background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.35); color: #34D399; }
+        .badge-warning { background: rgba(245, 158, 11, 0.18); border: 1px solid rgba(245, 158, 11, 0.35); color: #FBBF24; }
+        .badge-danger { background: rgba(244, 63, 94, 0.18); border: 1px solid rgba(244, 63, 94, 0.35); color: #FB7185; }
+        .badge-purple { background: rgba(139, 92, 246, 0.18); border: 1px solid rgba(139, 92, 246, 0.35); color: #C084FC; }
+
+        .btn-accept {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: #FFF; border: none; padding: 0.45rem 0.95rem; border-radius: 10px;
+            font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease;
+        }
+
+        .metric-mini {
+            background: rgba(15, 23, 42, 0.55); padding: 1.5rem; border-radius: 18px;
+            border: 1px solid var(--card-border); box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        .metric-mini h4 { color: var(--text-secondary); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
+        .metric-mini .val { font-family: 'Outfit', sans-serif; font-size: 2rem; font-weight: 800; margin-top: 0.5rem; }
+
+        .class-selector-btn {
+            background: var(--input-bg); border: 1px solid var(--input-border);
+            color: var(--text-secondary); padding: 0.55rem 1.1rem; border-radius: 10px; font-size: 0.85rem;
+            cursor: pointer; font-weight: 700; transition: all 0.2s ease;
+        }
+        .class-selector-btn.active { background: var(--primary-gradient); color: #FFF; border-color: transparent; }
+
+        .teacher-select {
+            background: var(--input-bg); border: 1px solid var(--primary);
+            color: #F8FAFC; padding: 0.5rem 0.85rem; border-radius: 10px; font-size: 0.85rem; font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Login Modal -->
+<div id="login-overlay" class="login-overlay">
+    <div class="login-card">
+        <div class="login-header">
+            <h2>School Portal Access</h2>
+            <p style="color:var(--text-secondary); font-size:0.9rem;">15 Teachers (Round-Robin Class Scheduling)</p>
+        </div>
+        
+        <div class="role-selector">
+            <button type="button" class="role-option active" onclick="selectRole('admin')">👑 Admin</button>
+            <button type="button" class="role-option" onclick="selectRole('staff')">👨‍🏫 Staff / Teacher</button>
+            <button type="button" class="role-option" onclick="selectRole('student')">🎒 Student</button>
+            <button type="button" class="role-option" onclick="selectRole('parent')">👨‍👩‍👧 Parent</button>
+        </div>
+
+        <form onsubmit="handleLogin(event)">
+            <input type="hidden" id="selected-role" value="admin">
+            
+            <div class="form-group">
+                <label id="username-label">Username / Email</label>
+                <input type="text" id="login-email" value="admin@school.edu" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="login-password" value="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn-submit">Login to Portal</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <header>
+        <div class="logo">
+            <div class="logo-icon">SMS</div>
+            <div>
+                <h2>School Management System</h2>
+                <span style="font-size:0.8rem; color:var(--text-secondary)" id="sub-header-role">Logged in as Administrator</span>
+            </div>
+        </div>
+        <div class="user-info-bar">
+            <span class="user-role-badge" id="user-display-name">Role: Admin</span>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </header>
+
+    <!-- ADMIN PORTAL VIEW -->
+    <div id="portal-admin" class="portal-section active">
+        <div class="tabs-nav">
+            <button class="tab-btn active" onclick="showAdminTab('leads')">📥 Admission Enquiries & Approval</button>
+            <button class="tab-btn" onclick="showAdminTab('students')">👨‍🎓 Student Directory (Classes 1-10)</button>
+            <button class="tab-btn" onclick="showAdminTab('timetables')">📅 15-Teacher Round-Robin Timetables</button>
+            <button class="tab-btn" onclick="showAdminTab('teachers')">👨‍🏫 15 Teachers Faculty Directory</button>
+        </div>
+
+        <div class="content-panel">
+            <div id="admin-leads" class="admin-tab active">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                    <h3 style="font-family:'Outfit'; font-size:1.3rem;">Admission Enquiries & Acceptance Approval</h3>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Enquiry ID</th>
+                            <th>Student Name</th>
+                            <th>Parent Name</th>
+                            <th>Parent Email</th>
+                            <th>Grade Applying</th>
+                            <th>Requested By (Staff)</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-enquiry-table">
+                        <tr id="enq-row-101">
+                            <td><strong>ENQ-2026-101</strong></td>
+                            <td>Rohan Verma</td>
+                            <td>Sanjay Verma</td>
+                            <td>sanjay.verma@example.com</td>
+                            <td>Class 8</td>
+                            <td><span class="badge" style="background:rgba(59,130,246,0.2); color:#60A5FA; border:1px solid rgba(59,130,246,0.4);">👨‍🏫 Dr. Ramesh Kumar</span></td>
+                            <td><span class="badge badge-warning" id="enq-status-101">Pending Approval</span></td>
+                            <td>
+                                <button class="btn-accept" id="enq-btn-101" onclick="acceptAdmission('101', 'Rohan Verma', 'Class 8', 'sanjay.verma@example.com')">✓ Accept & Confirm Admission</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="admin-students" class="admin-tab" style="display:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+                    <div>
+                        <h3 style="font-family:'Outfit'; font-size:1.3rem;">Student Directory (Full Admin Edit Access)</h3>
+                        <div style="display:flex; gap:0.4rem; overflow-x:auto; margin-top:0.5rem;" id="class-filter-btns"></div>
+                    </div>
+                    <button class="btn-submit" onclick="addNewStudent()" style="width:auto; padding:0.5rem 1.2rem; font-size:0.9rem;">➕ Add New Student</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Roll #</th>
+                            <th>Student Name</th>
+                            <th>Class</th>
+                            <th>Parent Email</th>
+                            <th>Attendance %</th>
+                            <th>Fee Status</th>
+                            <th>Admin Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-student-tbody"></tbody>
+                </table>
+            </div>
+
+            <div id="admin-timetables" class="admin-tab" style="display:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+                    <h3 style="font-family:'Outfit'; font-size:1.3rem;">Deterministic Round-Robin Timetables</h3>
+                    <div style="display:flex; gap:0.75rem; align-items:center;">
+                        <select id="timetable-class-select" onchange="renderTimetable(this.value)" style="padding:0.55rem 1rem;">
+                            <option value="Class 1">Class 1</option>
+                            <option value="Class 2">Class 2</option>
+                            <option value="Class 3">Class 3</option>
+                            <option value="Class 4">Class 4</option>
+                            <option value="Class 5">Class 5</option>
+                            <option value="Class 6">Class 6</option>
+                            <option value="Class 7">Class 7</option>
+                            <option value="Class 8">Class 8</option>
+                            <option value="Class 9">Class 9</option>
+                            <option value="Class 10" selected>Class 10</option>
+                        </select>
+                        <button class="tab-btn active" onclick="editTimetableSlot()" style="padding:0.55rem 1.2rem; font-size:0.85rem;">✏️ Edit / Assign Timetable Slot</button>
+                    </div>
+                </div>
+                <div id="timetable-render-area"></div>
+            </div>
+
+            <div id="admin-teachers" class="admin-tab" style="display:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                    <h3 style="font-family:'Outfit'; font-size:1.3rem;">15 Faculty Teachers Directory</h3>
+                    <button class="btn-submit" onclick="addNewTeacher()" style="width:auto; padding:0.5rem 1.2rem; font-size:0.9rem;">➕ Add New Teacher</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Teacher ID</th>
+                            <th>Teacher Name</th>
+                            <th>Subject Specialization</th>
+                            <th>Daily Teaching Limit</th>
+                            <th>Status</th>
+                            <th>Admin Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="teacher-directory-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- STUDENT PORTAL VIEW -->
+    <div id="portal-student" class="portal-section">
+        <div class="content-panel">
+            <h3 style="font-family:'Outfit'; font-size:1.4rem;">🎒 Student Portal: Aarav Sharma (Class 10)</h3>
+            
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem; margin-bottom:1.75rem;">
+                <div class="metric-mini">
+                    <h4>Overall Attendance</h4>
+                    <div class="val" style="color:#34D399" id="student-portal-att">95.0%</div>
+                </div>
+                <div class="metric-mini">
+                    <h4>Exam Performance</h4>
+                    <div class="val" style="color:#818CF8">Grade A+ (95%)</div>
+                </div>
+            </div>
+
+            <div class="tabs-nav" style="background:rgba(15,23,42,0.4);">
+                <button class="tab-btn active" onclick="showStudentSubTab('exam-timetable')">📝 Upcoming Exam Timetables</button>
+                <button class="tab-btn" onclick="showStudentSubTab('class-timetable')">🗓️ Weekly Class Timetable</button>
+            </div>
+
+            <div id="student-tab-exam-timetable" class="student-subtab active">
+                <h4 style="font-family:'Outfit'; font-size:1.1rem; margin-bottom:0.75rem;">📝 Upcoming Examination Schedule</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Exam Name</th>
+                            <th>Date & Time</th>
+                            <th>Subject</th>
+                            <th>Assigned Exam Hall</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Mid-Term Exam 2026</strong></td>
+                            <td>15-Oct-2026 (09:30 - 12:30 PM)</td>
+                            <td>Mathematics</td>
+                            <td>Main Auditorium (Hall A)</td>
+                            <td><span class="badge badge-warning">Upcoming</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="student-tab-class-timetable" class="student-subtab" style="display:none;">
+                <h4 style="font-family:'Outfit'; font-size:1.1rem; margin-bottom:0.75rem;">🗓️ My Round-Robin Class Timetable</h4>
+                <div id="student-timetable-area"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STAFF / TEACHER PORTAL VIEW -->
+    <div id="portal-staff" class="portal-section">
+        <div class="content-panel">
+            <h3 style="font-family:'Outfit'; font-size:1.4rem;">👨‍🏫 Staff & Teacher Portal</h3>
+            
+            <div class="tabs-nav" style="background:rgba(15,23,42,0.4); margin-bottom:1.25rem;">
+                <button class="tab-btn active" onclick="showStaffSubTab('attendance')">📋 Class Attendance Logger</button>
+                <button class="tab-btn" onclick="showStaffSubTab('admissions')">📥 Admission Enquiries & Forms</button>
+            </div>
+
+            <!-- Staff Sub-Tab 1: Attendance -->
+            <div id="staff-tab-attendance" class="staff-subtab active">
+                <div style="background:rgba(15,23,42,0.6); padding:1.4rem; border-radius:18px; border:1px solid var(--card-border); margin-bottom:1.5rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <label style="font-weight:700; color:var(--text-primary);">Select Class to Mark Attendance:</label>
+                            <select id="staff-class-dropdown" onchange="loadStaffClassRoster(this.value)" style="margin-left:0.75rem; padding:0.6rem 1.1rem;">
+                                <option value="Class 1">Class 1</option>
+                                <option value="Class 2">Class 2</option>
+                                <option value="Class 3">Class 3</option>
+                                <option value="Class 4">Class 4</option>
+                                <option value="Class 5">Class 5</option>
+                                <option value="Class 6">Class 6</option>
+                                <option value="Class 7">Class 7</option>
+                                <option value="Class 8">Class 8</option>
+                                <option value="Class 9">Class 9</option>
+                                <option value="Class 10" selected>Class 10</option>
+                            </select>
+                        </div>
+                        <button type="button" class="tab-btn active" onclick="markAllPresent()">Mark All Present</button>
+                    </div>
+                </div>
+
+                <h4>📋 Student Roster for <span id="staff-current-class-title">Class 10</span></h4>
+                <form onsubmit="submitClassAttendance(event)">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Roll #</th>
+                                <th>Student ID</th>
+                                <th>Student Name</th>
+                                <th>Attendance Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staff-roster-tbody"></tbody>
+                    </table>
+                    <div style="margin-top:1.5rem;">
+                        <button type="submit" class="btn-submit">Submit Today's Class Attendance</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Staff Sub-Tab 2: Teacher Admission Enquiry Submission (Admin Only Approval) -->
+            <div id="staff-tab-admissions" class="staff-subtab" style="display:none;">
+                <div style="background:rgba(15,23,42,0.6); padding:1.4rem; border-radius:18px; border:1px solid var(--card-border); margin-bottom:1.5rem;">
+                    <h4 style="font-family:'Outfit'; font-size:1.1rem; color:var(--accent-teal); margin-bottom:0.75rem;">📝 Submit New Admission Enquiry (Teacher Portal)</h4>
+                    <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:1rem;">Teachers can enter candidate details to create an admission request. Final approval is processed exclusively by the <strong>Admin</strong>.</p>
+                    <form onsubmit="handleTeacherEnquirySubmit(event)" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; align-items:end;">
+                        <div>
+                            <label style="font-size:0.85rem; color:var(--text-secondary);">Submitting Teacher Name</label>
+                            <select id="tch-enq-staffname" style="width:100%; padding:0.55rem; border-radius:8px; border:1px solid var(--card-border); background:rgba(15,23,42,0.8); color:white;">
+                                <option value="Dr. Ramesh Kumar">Dr. Ramesh Kumar (Staff)</option>
+                                <option value="Ms. Neha Sharma">Ms. Neha Sharma (Staff)</option>
+                                <option value="Prof. Vikram Malhotra">Prof. Vikram Malhotra (Staff)</option>
+                                <option value="Dr. Sneha Paul">Dr. Sneha Paul (Staff)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:0.85rem; color:var(--text-secondary);">Student Full Name</label>
+                            <input type="text" id="tch-enq-name" required placeholder="e.g. Rohan Verma" style="width:100%; padding:0.55rem; border-radius:8px; border:1px solid var(--card-border); background:rgba(15,23,42,0.8); color:white;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.85rem; color:var(--text-secondary);">Parent Name</label>
+                            <input type="text" id="tch-enq-parent" required placeholder="e.g. Sanjay Verma" style="width:100%; padding:0.55rem; border-radius:8px; border:1px solid var(--card-border); background:rgba(15,23,42,0.8); color:white;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.85rem; color:var(--text-secondary);">Parent Email</label>
+                            <input type="email" id="tch-enq-email" required placeholder="sanjay.verma@example.com" style="width:100%; padding:0.55rem; border-radius:8px; border:1px solid var(--card-border); background:rgba(15,23,42,0.8); color:white;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.85rem; color:var(--text-secondary);">Target Class</label>
+                            <select id="tch-enq-class" style="width:100%; padding:0.55rem; border-radius:8px; border:1px solid var(--card-border); background:rgba(15,23,42,0.8); color:white;">
+                                <option value="Class 1">Class 1</option>
+                                <option value="Class 2">Class 2</option>
+                                <option value="Class 3">Class 3</option>
+                                <option value="Class 4">Class 4</option>
+                                <option value="Class 5">Class 5</option>
+                                <option value="Class 6">Class 6</option>
+                                <option value="Class 7">Class 7</option>
+                                <option value="Class 8" selected>Class 8</option>
+                                <option value="Class 9">Class 9</option>
+                                <option value="Class 10">Class 10</option>
+                            </select>
+                        </div>
+                        <div style="grid-column: 1 / -1;">
+                            <button type="submit" class="btn-submit" style="width:auto; padding:0.65rem 1.5rem;">➕ Submit Enquiry for Admin Approval</button>
+                        </div>
+                    </form>
+                </div>
+
+                <h4 style="font-family:'Outfit'; font-size:1.1rem; margin-bottom:0.75rem;">📥 Teacher Submitted Enquiries Status Log</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Enquiry ID</th>
+                            <th>Student Name</th>
+                            <th>Parent Email</th>
+                            <th>Grade</th>
+                            <th>Requested By (Staff)</th>
+                            <th>Status</th>
+                            <th>Admin Approval Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="staff-enquiry-table">
+                        <tr id="staff-enq-row-101">
+                            <td><strong>ENQ-2026-101</strong></td>
+                            <td>Rohan Verma</td>
+                            <td>sanjay.verma@example.com</td>
+                            <td>Class 8</td>
+                            <td><span class="badge" style="background:rgba(59,130,246,0.2); color:#60A5FA; border:1px solid rgba(59,130,246,0.4);">👨‍🏫 Dr. Ramesh Kumar</span></td>
+                            <td><span class="badge badge-warning" id="staff-enq-badge-101">⏳ Pending Admin Approval</span></td>
+                            <td><span style="color:var(--text-secondary); font-size:0.85rem;" id="staff-enq-action-101">🔒 Admin Approval Required</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- PARENT PORTAL VIEW -->
+    <div id="portal-parent" class="portal-section">
+        <div class="content-panel">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:1.5rem;">
+                <h3 style="font-family:'Outfit'; font-size:1.4rem;">👨‍👩‍👧 Parent Portal: Child Profile (Aarav Sharma - Class 10)</h3>
+                <span class="badge badge-success" style="font-size:0.9rem; padding:0.4rem 1rem;">Registered Parent: Vikram Sharma</span>
+            </div>
+
+            <!-- Key Child Performance & Fee Metrics -->
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1.25rem; margin-bottom:1.75rem;">
+                <div class="metric-mini">
+                    <h4>Child Attendance Rate</h4>
+                    <div class="val" style="color:#34D399;" id="parent-portal-att">95.0%</div>
+                </div>
+                <div class="metric-mini">
+                    <h4>Annual Fee Status</h4>
+                    <div class="val" id="parent-portal-fee-badge"><span class="badge badge-success" style="font-size:1.1rem; padding:0.4rem 0.8rem;">PAID</span></div>
+                </div>
+                <div class="metric-mini">
+                    <h4>Outstanding Balance</h4>
+                    <div class="val" style="color:#F87171;" id="parent-portal-balance">$0.00</div>
+                </div>
+            </div>
+
+            <div class="tabs-nav" style="background:rgba(15,23,42,0.4); margin-bottom:1.25rem;">
+                <button class="tab-btn active" onclick="showParentSubTab('timetable')">📅 Class Timetable & Schedule</button>
+                <button class="tab-btn" onclick="showParentSubTab('fees')">💳 Fee Ledger & Payment Status</button>
+            </div>
+
+            <!-- Parent Sub-Tab 1: Timetable -->
+            <div id="parent-tab-timetable" class="parent-subtab">
+                <div id="parent-timetable-area"></div>
+            </div>
+
+            <!-- Parent Sub-Tab 2: Fee Ledger & Online Payment -->
+            <div id="parent-tab-fees" class="parent-subtab" style="display:none;">
+                <div style="background:rgba(15,23,42,0.6); padding:1.4rem; border-radius:18px; border:1px solid var(--card-border); margin-bottom:1.5rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                        <div>
+                            <h4 style="font-family:'Outfit'; font-size:1.1rem; color:var(--accent-teal);">💳 2026 Academic Year Fee Summary</h4>
+                            <p style="color:var(--text-secondary); font-size:0.9rem;">View tuition, examination, and facility fee status for Aarav Sharma.</p>
+                        </div>
+                        <button class="btn-submit" onclick="payParentFeesOnline()" style="width:auto; padding:0.6rem 1.4rem;" id="parent-pay-btn">💳 Pay Outstanding Balance Online</button>
+                    </div>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fee Item / Component</th>
+                            <th>Due Date</th>
+                            <th>Total Amount ($)</th>
+                            <th>Amount Paid ($)</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="parent-fee-tbody">
+                        <tr>
+                            <td><strong>Term 1 Tuition & Academic Fee</strong></td>
+                            <td>15 Jan 2026</td>
+                            <td>$1,500.00</td>
+                            <td>$1,500.00</td>
+                            <td><span class="badge badge-success">✓ Paid</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Term 2 Tuition & Science Lab Fee</strong></td>
+                            <td>15 May 2026</td>
+                            <td>$1,200.00</td>
+                            <td>$1,200.00</td>
+                            <td><span class="badge badge-success">✓ Paid</span></td>
+                        </tr>
+                        <tr id="fee-row-term3">
+                            <td><strong>Term 3 Tuition & Library Access</strong></td>
+                            <td>15 Sep 2026</td>
+                            <td>$1,000.00</td>
+                            <td><span id="fee-paid-term3">$1,000.00</span></td>
+                            <td><span class="badge badge-success" id="fee-badge-term3">✓ Paid</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // 15 Faculty Teachers Pool
+    const teachersList = [
+        { id: "TCH-001", name: "Dr. Ramesh Kumar", subject: "Mathematics" },
+        { id: "TCH-002", name: "Prof. Vikram Malhotra", subject: "Physics" },
+        { id: "TCH-003", name: "Dr. Sneha Paul", subject: "Chemistry" },
+        { id: "TCH-004", name: "Ms. Neha Sharma", subject: "Computer Science" },
+        { id: "TCH-005", name: "Ms. Priya Das", subject: "English Literature" },
+        { id: "TCH-006", name: "Mr. Rajesh Khanna", subject: "Social Studies" },
+        { id: "TCH-007", name: "Prof. Ankit Roy", subject: "Physics" },
+        { id: "TCH-008", name: "Prof. Kavita Rao", subject: "Mathematics" },
+        { id: "TCH-009", name: "Dr. Alok Nath", subject: "Chemistry" },
+        { id: "TCH-010", name: "Mr. Suresh Mehta", subject: "Mathematics" },
+        { id: "TCH-011", name: "Mrs. Radhika Iyengar", subject: "English Literature" },
+        { id: "TCH-012", name: "Mrs. Sunita Reddy", subject: "Social Studies" },
+        { id: "TCH-013", name: "Mr. Amit Shah", subject: "Computer Science" },
+        { id: "TCH-014", name: "Dr. Priya Singh", subject: "Biology" },
+        { id: "TCH-015", name: "Prof. Sandeep Varma", subject: "Economics" }
+    ];
+
+    const database = { students: [], timetables: {} };
+    const firstNames = ["Aarav", "Rohan", "Ananya", "Priya", "Rahul", "Kavya", "Aditya", "Sneha", "Vikram", "Neha", "Amit", "Pooja", "Siddharth", "Ishita", "Manish", "Ritu", "Deepak", "Tanvi", "Suresh", "Divya"];
+    const lastNames = ["Sharma", "Verma", "Patel", "Singh", "Gupta", "Rao", "Kumar", "Das", "Malhotra", "Nair"];
+    const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+    // Deterministic Round-Robin Timetable Generation across 15 Teachers
+    for(let c = 1; c <= 10; c++) {
+        const className = "Class " + c;
+        for(let s = 1; s <= 20; s++) {
+            const fName = firstNames[(s - 1) % firstNames.length];
+            const lName = lastNames[(c + s) % lastNames.length];
+            const studentId = `STD-2026-${c}${s < 10 ? '0' + s : s}`;
+            database.students.push({
+                roll: s, id: studentId, name: `${fName} ${lName}`, className: className,
+                parentEmail: `${fName.toLowerCase()}.${lName.toLowerCase()}@example.com`,
+                attendance: (90 + (s % 10)).toFixed(1) + '%',
+                feeStatus: s % 3 === 0 ? 'Paid' : (s % 3 === 1 ? 'Partial' : 'Pending'), status: 'Present'
+            });
+        }
+
+        // Build 3 periods x 6 days deterministic round robin using 15 teachers
+        const p1 = { period: "Period 1 (09:00 - 10:30 AM)" };
+        const p2 = { period: "Period 2 (10:45 - 12:15 PM)" };
+        const p3 = { period: "Period 3 (01:15 - 02:45 PM)" };
+
+        days.forEach((day, dIdx) => {
+            const t1 = teachersList[(c * 3 + dIdx * 3 + 0) % 15];
+            const t2 = teachersList[(c * 3 + dIdx * 3 + 1) % 15];
+            const t3 = teachersList[(c * 3 + dIdx * 3 + 2) % 15];
+
+            p1[day] = `${t1.subject} (${t1.name})`;
+            p2[day] = `${t2.subject} (${t2.name})`;
+            p3[day] = `${t3.subject} (${t3.name})`;
+        });
+
+        database.timetables[className] = [p1, p2, p3];
+    }
+
+    let currentSelectedClass = "Class 10";
+
+    window.onload = function() {
+        renderTeacherDirectory();
+        renderClassFilterButtons();
+        renderAdminStudents("Class 10");
+        renderTimetable("Class 10");
+        document.getElementById('student-timetable-area').innerHTML = buildTimetableHTML("Class 10");
+        document.getElementById('parent-timetable-area').innerHTML = buildTimetableHTML("Class 10");
+        loadStaffClassRoster("Class 10");
+    };
+
+    let currentAdminStudentClass = "Class 10";
+
+    function renderTeacherDirectory() {
+        const tbody = document.getElementById('teacher-directory-tbody');
+        let html = '';
+        teachersList.forEach(t => {
+            html += `
+                <tr>
+                    <td><strong>${t.id}</strong></td>
+                    <td>${t.name}</td>
+                    <td>${t.subject}</td>
+                    <td>Max 3 Periods / Day</td>
+                    <td><span class="badge badge-success">Active Faculty</span></td>
+                    <td>
+                        <button class="tab-btn" style="padding:0.3rem 0.8rem; font-size:0.8rem; background:var(--accent-teal);" onclick="editTeacher('${t.id}')">✏️ Edit</button>
+                    </td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    }
+
+    function addNewTeacher() {
+        const name = prompt("Enter New Teacher Full Name:", "Dr. Ananya Roy");
+        if (!name) return;
+        const subject = prompt("Enter Subject Specialization:", "Mathematics");
+        if (!subject) return;
+
+        const newId = "TCH-" + String(teachersList.length + 1).padStart(3, '0');
+        teachersList.push({ id: newId, name: name, subject: subject });
+        renderTeacherDirectory();
+        alert(`✅ Teacher added successfully!\n\nID: ${newId}\nName: ${name}\nSubject: ${subject}`);
+    }
+
+    function editTeacher(teacherId) {
+        const teacher = teachersList.find(t => t.id === teacherId);
+        if (!teacher) return;
+
+        const newName = prompt(`Edit Teacher Name (${teacher.id}):`, teacher.name);
+        if (newName === null) return;
+        const newSubject = prompt(`Edit Subject Specialization for ${newName}:`, teacher.subject);
+        if (newSubject === null) return;
+
+        teacher.name = newName;
+        teacher.subject = newSubject;
+        renderTeacherDirectory();
+        alert(`✅ Teacher ${teacherId} updated successfully!`);
+    }
+
+    function renderClassFilterButtons() {
+        const container = document.getElementById('class-filter-btns');
+        let html = '';
+        for(let c = 1; c <= 10; c++) {
+            const cls = "Class " + c;
+            html += `<button class="class-selector-btn ${cls === 'Class 10' ? 'active' : ''}" onclick="filterAdminStudents('${cls}', this)">Class ${c}</button>`;
+        }
+        container.innerHTML = html;
+    }
+
+    function filterAdminStudents(className, btn) {
+        document.querySelectorAll('.class-selector-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderAdminStudents(className);
+    }
+
+    function renderAdminStudents(className) {
+        currentAdminStudentClass = className;
+        const tbody = document.getElementById('admin-student-tbody');
+        const students = database.students.filter(s => s.className === className);
+        let html = '';
+        students.forEach(s => {
+            const badgeClass = s.feeStatus === 'Paid' ? 'badge-success' : (s.feeStatus === 'Partial' ? 'badge-warning' : 'badge-danger');
+            html += `
+                <tr>
+                    <td><strong>${s.id}</strong></td>
+                    <td>Roll #${s.roll}</td>
+                    <td>${s.name}</td>
+                    <td>${s.className}</td>
+                    <td>${s.parentEmail}</td>
+                    <td><span class="badge badge-success">${s.attendance}</span></td>
+                    <td><span class="badge ${badgeClass}">${s.feeStatus}</span></td>
+                    <td>
+                        <button class="tab-btn" style="padding:0.3rem 0.8rem; font-size:0.8rem; background:var(--accent-teal);" onclick="editStudent('${s.id}')">✏️ Edit</button>
+                    </td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    }
+
+    function addNewStudent() {
+        const name = prompt("Enter New Student Full Name:", "Karan Mehta");
+        if (!name) return;
+        const className = prompt("Assign Class (Class 1 to Class 10):", currentAdminStudentClass || "Class 10");
+        if (!className) return;
+        const parentEmail = prompt("Enter Parent Email:", `${name.toLowerCase().replace(/\s+/g, '.')}@example.com`);
+        if (!parentEmail) return;
+
+        const generatedId = `STD-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+        const rollNo = database.students.filter(s => s.className === className).length + 1;
+
+        database.students.push({
+            roll: rollNo,
+            id: generatedId,
+            name: name,
+            className: className,
+            parentEmail: parentEmail,
+            attendance: '95.0%',
+            feeStatus: 'Paid',
+            status: 'Present'
+        });
+
+        renderAdminStudents(className);
+        loadStaffClassRoster(className);
+        alert(`🎉 New Student Enrolled!\n\nID: ${generatedId}\nName: ${name}\nClass: ${className}\nRoll #: ${rollNo}`);
+    }
+
+    function editStudent(studentId) {
+        const student = database.students.find(s => s.id === studentId);
+        if (!student) return;
+
+        const newName = prompt(`Edit Student Name (${student.id}):`, student.name);
+        if (newName === null) return;
+        const newRoll = prompt(`Edit Roll Number for ${newName}:`, student.roll);
+        if (newRoll === null) return;
+        const newClass = prompt(`Edit Class (Class 1 to Class 10):`, student.className);
+        if (newClass === null) return;
+        const newEmail = prompt(`Edit Parent Email:`, student.parentEmail);
+        if (newEmail === null) return;
+        const newFee = prompt(`Edit Fee Status (Paid / Partial / Pending):`, student.feeStatus);
+        if (newFee === null) return;
+
+        student.name = newName;
+        student.roll = parseInt(newRoll) || student.roll;
+        student.className = newClass;
+        student.parentEmail = newEmail;
+        student.feeStatus = newFee;
+
+        renderAdminStudents(currentAdminStudentClass);
+        loadStaffClassRoster(currentAdminStudentClass);
+        alert(`✅ Student details for ${studentId} updated!`);
+    }
+
+    function editTimetableSlot() {
+        const selectedClass = document.getElementById('timetable-class-select').value;
+        const day = prompt(`Select Day to Edit for ${selectedClass} (Mon / Tue / Wed / Thu / Fri / Sat):`, "Mon");
+        if (!day || !["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].includes(day)) {
+            alert("Invalid Day selected. Please specify Mon, Tue, Wed, Thu, Fri, or Sat.");
+            return;
+        }
+
+        const periodIdx = prompt(`Select Period Number for ${selectedClass} on ${day} (1, 2, or 3):`, "1");
+        if (!periodIdx || !["1", "2", "3"].includes(periodIdx)) {
+            alert("Invalid Period Number. Choose 1, 2, or 3.");
+            return;
+        }
+
+        const currentSlot = database.timetables[selectedClass][parseInt(periodIdx) - 1][day];
+        const newAssignment = prompt(`Enter New Subject & Teacher for ${selectedClass} - ${day} (Period ${periodIdx}):`, currentSlot);
+        if (!newAssignment) return;
+
+        database.timetables[selectedClass][parseInt(periodIdx) - 1][day] = newAssignment;
+
+        renderTimetable(selectedClass);
+        document.getElementById('student-timetable-area').innerHTML = buildTimetableHTML(selectedClass);
+        document.getElementById('parent-timetable-area').innerHTML = buildTimetableHTML(selectedClass);
+        alert(`✅ Timetable slot updated!\n\n${selectedClass} | ${day} | Period ${periodIdx} -> ${newAssignment}`);
+    }
+
+    function buildTimetableHTML(className) {
+        const rows = database.timetables[className] || [];
+        let html = `<table><thead><tr><th>Time Period</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th><th>Saturday</th></tr></thead><tbody>`;
+        rows.forEach(r => {
+            html += `<tr><td><strong>${r.period}</strong></td><td>${r.Mon}</td><td>${r.Tue}</td><td>${r.Wed}</td><td>${r.Thu}</td><td>${r.Fri}</td><td>${r.Sat}</td></tr>`;
+        });
+        html += `</tbody></table>`;
+        return html;
+    }
+
+    function renderTimetable(className) {
+        document.getElementById('timetable-render-area').innerHTML = buildTimetableHTML(className);
+    }
+
+    function showStudentSubTab(subTabName) {
+        document.querySelectorAll('.student-subtab').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('#portal-student .tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById('student-tab-' + subTabName).style.display = 'block';
+        event.target.classList.add('active');
+    }
+
+    function showStaffSubTab(subTabName) {
+        document.querySelectorAll('.staff-subtab').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('#portal-staff .tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById('staff-tab-' + subTabName).style.display = 'block';
+        event.target.classList.add('active');
+    }
+
+    let enquiryCounter = 102;
+
+    function handleTeacherEnquirySubmit(event) {
+        event.preventDefault();
+        const staffName = document.getElementById('tch-enq-staffname').value;
+        const sName = document.getElementById('tch-enq-name').value;
+        const pName = document.getElementById('tch-enq-parent').value;
+        const pEmail = document.getElementById('tch-enq-email').value;
+        const targetClass = document.getElementById('tch-enq-class').value;
+        const enqId = enquiryCounter++;
+
+        // Append to Admin Enquiry Table (With Requested By Staff Column)
+        const adminTbody = document.getElementById('admin-enquiry-table');
+        const adminRow = document.createElement('tr');
+        adminRow.id = `enq-row-${enqId}`;
+        adminRow.innerHTML = `
+            <td><strong>ENQ-2026-${enqId}</strong></td>
+            <td>${sName}</td>
+            <td>${pName}</td>
+            <td>${pEmail}</td>
+            <td>${targetClass}</td>
+            <td><span class="badge" style="background:rgba(59,130,246,0.2); color:#60A5FA; border:1px solid rgba(59,130,246,0.4);">👨‍🏫 ${staffName}</span></td>
+            <td><span class="badge badge-warning" id="enq-status-${enqId}">Pending Approval</span></td>
+            <td>
+                <button class="btn-accept" id="enq-btn-${enqId}" onclick="acceptAdmission('${enqId}', '${sName}', '${targetClass}', '${pEmail}')">✓ Accept & Confirm Admission</button>
+            </td>
+        `;
+        adminTbody.appendChild(adminRow);
+
+        // Append to Staff Enquiry Table
+        const staffTbody = document.getElementById('staff-enquiry-table');
+        const staffRow = document.createElement('tr');
+        staffRow.id = `staff-enq-row-${enqId}`;
+        staffRow.innerHTML = `
+            <td><strong>ENQ-2026-${enqId}</strong></td>
+            <td>${sName}</td>
+            <td>${pEmail}</td>
+            <td>${targetClass}</td>
+            <td><span class="badge" style="background:rgba(59,130,246,0.2); color:#60A5FA; border:1px solid rgba(59,130,246,0.4);">👨‍🏫 ${staffName}</span></td>
+            <td><span class="badge badge-warning" id="staff-enq-badge-${enqId}">⏳ Pending Admin Approval</span></td>
+            <td><span style="color:var(--text-secondary); font-size:0.85rem;" id="staff-enq-action-${enqId}">🔒 Admin Approval Required</span></td>
+        `;
+        staffTbody.appendChild(staffRow);
+
+        alert(`✅ Admission enquiry for ${sName} (${targetClass}) submitted by ${staffName}!\n\nIt is now logged and pending approval in the Admin Portal.`);
+        document.getElementById('tch-enq-name').value = '';
+        document.getElementById('tch-enq-parent').value = '';
+        document.getElementById('tch-enq-email').value = '';
+    }
+
+    function acceptAdmission(enqId, studentName, className, parentEmail) {
+        const generatedId = 'STD-2026-' + Math.floor(1000 + Math.random() * 9000);
+        const generatedPass = 'Student@2026';
+
+        database.students.push({
+            roll: 21, id: generatedId, name: studentName, className: className,
+            parentEmail: parentEmail, attendance: '100.0%', feeStatus: 'Pending', status: 'Present'
+        });
+
+        // Update Admin Table UI
+        const adminBadge = document.getElementById(`enq-status-${enqId}`);
+        if(adminBadge) {
+            adminBadge.className = 'badge badge-success';
+            adminBadge.innerText = '✓ Approved & Enrolled';
+        }
+        const adminBtn = document.getElementById(`enq-btn-${enqId}`);
+        if(adminBtn) {
+            adminBtn.disabled = true;
+            adminBtn.style.opacity = '0.5';
+            adminBtn.innerText = 'Enrolled';
+        }
+
+        // Update Staff Table UI
+        const staffBadge = document.getElementById(`staff-enq-badge-${enqId}`);
+        if(staffBadge) {
+            staffBadge.className = 'badge badge-success';
+            staffBadge.innerText = '✓ Approved by Admin';
+        }
+        const staffAction = document.getElementById(`staff-enq-action-${enqId}`);
+        if(staffAction) {
+            staffAction.innerHTML = `<span style="color:#34D399; font-weight:bold;">Enrolled (${generatedId})</span>`;
+        }
+
+        alert(`🎉 ADMISSION CONFIRMED BY ADMIN!\n\nStudent: ${studentName}\nAssigned Class: ${className}\n\n🔐 Generated Credentials:\n• Student ID: ${generatedId}\n• Password: ${generatedPass}`);
+    }
+
+    function loadStaffClassRoster(className) {
+        currentSelectedClass = className;
+        document.getElementById('staff-current-class-title').innerText = className;
+        const tbody = document.getElementById('staff-roster-tbody');
+        const students = database.students.filter(s => s.className === className);
+        let html = '';
+        students.forEach(s => {
+            html += `
+                <tr>
+                    <td><strong>Roll #${s.roll}</strong></td>
+                    <td>${s.id}</td>
+                    <td>${s.name}</td>
+                    <td>
+                        <select class="teacher-select">
+                            <option value="Present">Present</option>
+                            <option value="Absent">Absent</option>
+                        </select>
+                    </td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    }
+
+    function markAllPresent() { alert('All 20 students in ' + currentSelectedClass + ' marked Present!'); }
+    function submitClassAttendance(event) { event.preventDefault(); alert('Attendance logged for ' + currentSelectedClass + '!'); }
+
+    function selectRole(role) {
+        document.querySelectorAll('.role-option').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById('selected-role').value = role;
+
+        const emailField = document.getElementById('login-email');
+        if(role === 'admin') emailField.value = 'admin@school.edu';
+        else if(role === 'staff') emailField.value = 'ramesh.kumar@school.edu';
+        else if(role === 'student') emailField.value = 'aarav.sharma@student.edu';
+        else if(role === 'parent') emailField.value = 'vikram.sharma@example.com';
+    }
+
+    function handleLogin(event) {
+        event.preventDefault();
+        const role = document.getElementById('selected-role').value;
+        const email = document.getElementById('login-email').value;
+
+        document.getElementById('login-overlay').style.display = 'none';
+        document.querySelectorAll('.portal-section').forEach(sec => sec.classList.remove('active'));
+        document.getElementById('portal-' + role).classList.add('active');
+
+        document.getElementById('sub-header-role').innerText = 'Logged in as ' + role.toUpperCase() + ' (' + email + ')';
+        document.getElementById('user-display-name').innerText = 'Role: ' + role.toUpperCase();
+    }
+
+    function showParentSubTab(subTabName) {
+        document.querySelectorAll('.parent-subtab').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('#portal-parent .tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById('parent-tab-' + subTabName).style.display = 'block';
+        event.target.classList.add('active');
+    }
+
+    function payParentFeesOnline() {
+        const student = database.students.find(s => s.name === "Aarav Sharma");
+        alert("💳 ONLINE PAYMENT GATEWAY\n\nProcessing Term 3 Balance Payment of $1,000.00 for Aarav Sharma...\n\n✅ Payment Successful! Transaction ID: TXN-2026-99482");
+
+        if (student) {
+            student.feeStatus = 'Paid';
+        }
+        document.getElementById('parent-portal-fee-badge').innerHTML = '<span class="badge badge-success" style="font-size:1.1rem; padding:0.4rem 0.8rem;">PAID</span>';
+        document.getElementById('parent-portal-balance').innerText = '$0.00';
+        document.getElementById('fee-paid-term3').innerText = '$1,000.00';
+        document.getElementById('fee-badge-term3').className = 'badge badge-success';
+        document.getElementById('fee-badge-term3').innerText = '✓ Paid';
+        const payBtn = document.getElementById('parent-pay-btn');
+        if(payBtn) {
+            payBtn.disabled = true;
+            payBtn.innerText = '✓ All Fees Paid';
+            payBtn.style.opacity = '0.5';
+        }
+        if(typeof renderAdminStudents === 'function') {
+            renderAdminStudents(currentAdminStudentClass || "Class 10");
+        }
+    }
+
+    function logout() { document.getElementById('login-overlay').style.display = 'flex'; }
+    function showAdminTab(tabName) {
+        document.querySelectorAll('.admin-tab').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('#portal-admin .tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById('admin-' + tabName).style.display = 'block';
+        event.target.classList.add('active');
+    }
+</script>
+
+</body>
+</html>

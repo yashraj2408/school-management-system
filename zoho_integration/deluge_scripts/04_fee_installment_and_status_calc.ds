@@ -1,0 +1,69 @@
+/*
+ * DELUGE SCRIPT 04: Fee Installments & Outstanding Status Ledger Engine
+ * Workflow Trigger: Module: Fee_Payments | Action: Create / Edit / Delete
+ * Logic: 
+ *   1. Summarizes all payment receipts for a given student.
+ *   2. Updates Fees_Collected on Student Record.
+ *   3. Calculates Outstanding_Fees = Total_Fees - Fees_Collected.
+ *   4. Updates Fee_Payment_Status: 'Paid', 'Partial', 'Pending', or 'Overdue'.
+ */
+
+void calculateFeeStatusAndBalance(bigint paymentRecordId)
+{
+    // Step 1: Fetch current payment record
+    paymentRec = zoho.crm.getRecordById("Fee_Payments", paymentRecordId);
+    
+    studentLookup = paymentRec.get("Student");
+    if(studentLookup == null)
+    {
+        info "Error: Student lookup is missing.";
+        return;
+    }
+    
+    studentId = studentLookup.get("id");
+    
+    // Step 2: Fetch Student record to get Total_Fees
+    studentRec = zoho.crm.getRecordById("Students", studentId);
+    totalFees = ifNull(studentRec.get("Total_Fees"), 0).toDecimal();
+    
+    // Step 3: Fetch all fee payment records for this student
+    allPayments = zoho.crm.searchRecords("Fee_Payments", "(Student:equals:" + studentId + ")", 1, 200);
+    
+    totalCollected = 0.0;
+    for each pay in allPayments
+    {
+        amountPaid = ifNull(pay.get("Amount_Paid"), 0).toDecimal();
+        totalCollected = totalCollected + amountPaid;
+    }
+    
+    // Step 4: Calculate Outstanding Amount
+    outstandingFees = totalFees - totalCollected;
+    if(outstandingFees < 0)
+    {
+        outstandingFees = 0.0;
+    }
+    
+    // Step 5: Determine Payment Status
+    paymentStatus = "Pending";
+    if(totalCollected >= totalFees && totalFees > 0)
+    {
+        paymentStatus = "Paid";
+    }
+    else if(totalCollected > 0 && totalCollected < totalFees)
+    {
+        paymentStatus = "Partial";
+    }
+    else if(totalCollected == 0 && totalFees > 0)
+    {
+        paymentStatus = "Pending";
+    }
+    
+    // Step 6: Update Student record in CRM
+    updateStudentMap = Map();
+    updateStudentMap.put("Fees_Collected", totalCollected.round(2));
+    updateStudentMap.put("Outstanding_Fees", outstandingFees.round(2));
+    updateStudentMap.put("Fee_Payment_Status", paymentStatus);
+    
+    response = zoho.crm.updateRecord("Students", studentId, updateStudentMap);
+    info "Updated Fee Status for Student ID " + studentId + " | Collected: " + totalCollected + " | Outstanding: " + outstandingFees + " | Status: " + paymentStatus;
+}

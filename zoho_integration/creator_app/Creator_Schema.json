@@ -1,0 +1,32 @@
+{
+  "app_name": "School Parent Portal",
+  "app_link_name": "parent-portal",
+  "version": "1.0",
+  "forms": [
+    {
+      "form_name": "Student_Parent_Portal_Record",
+      "display_name": "Student Record",
+      "fields": [
+        {"name": "CRM_Student_ID", "type": "single_line", "hidden": true},
+        {"name": "Student_ID", "type": "single_line", "required": true},
+        {"name": "Student_Full_Name", "type": "single_line", "required": true},
+        {"name": "Class_Section", "type": "single_line"},
+        {"name": "Parent_Name", "type": "single_line"},
+        {"name": "Parent_Email", "type": "email", "required": true},
+        {"name": "Parent_Mobile", "type": "phone"},
+        {"name": "Attendance_Percentage", "type": "decimal"},
+        {"name": "Total_Fees", "type": "currency"},
+        {"name": "Fees_Collected", "type": "currency"},
+        {"name": "Outstanding_Fees", "type": "currency"},
+        {"name": "Fee_Status", "type": "dropdown", "options": ["Pending", "Partial", "Paid", "Overdue"]}
+      ]
+    }
+  ],
+  "reports": [
+    {
+      "report_name": "All_Student_Portal_Records",
+      "display_name": "My Child Dashboard",
+      "filter_criteria": "Parent_Email == zoho.loginuserid"
+    }
+  ]
+}

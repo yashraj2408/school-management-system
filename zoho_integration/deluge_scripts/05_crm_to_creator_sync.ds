@@ -1,0 +1,71 @@
+/*
+ * DELUGE SCRIPT 05: Real-Time Synchronization Engine (Zoho CRM -> Zoho Creator)
+ * Workflow Trigger: Module: Students | Action: Edit (On Key Field Updates)
+ * Logic: Synchronizes Student Profile, Academic, Attendance, Exam & Fee summaries to Zoho Creator Parent Application.
+ */
+
+void syncStudentDataToCreator(bigint studentRecordId)
+{
+    // Step 1: Fetch Student details from Zoho CRM
+    studentCRM = zoho.crm.getRecordById("Students", studentRecordId);
+    
+    studentId = ifNull(studentCRM.get("Student_ID"), "");
+    firstName = ifNull(studentCRM.get("First_Name"), "");
+    lastName = ifNull(studentCRM.get("Last_Name"), "");
+    parentName = ifNull(studentCRM.get("Parent_Name"), "");
+    parentEmail = ifNull(studentCRM.get("Parent_Email"), "");
+    parentMobile = ifNull(studentCRM.get("Parent_Mobile"), "");
+    attendancePct = ifNull(studentCRM.get("Attendance_Percentage"), 0).toDecimal();
+    totalFees = ifNull(studentCRM.get("Total_Fees"), 0).toDecimal();
+    feesCollected = ifNull(studentCRM.get("Fees_Collected"), 0).toDecimal();
+    outstandingFees = ifNull(studentCRM.get("Outstanding_Fees"), 0).toDecimal();
+    feeStatus = ifNull(studentCRM.get("Fee_Payment_Status"), "Pending");
+    
+    classLookup = studentCRM.get("Current_Class");
+    className = if(classLookup != null, classLookup.get("name"), "Unassigned");
+    
+    sectionLookup = studentCRM.get("Current_Section");
+    sectionName = if(sectionLookup != null, sectionLookup.get("name"), "Unassigned");
+    
+    // Step 2: Prepare Map for Zoho Creator Form 'Student_Parent_Portal_Record'
+    creatorMap = Map();
+    creatorMap.put("CRM_Student_ID", studentRecordId.toString());
+    creatorMap.put("Student_ID", studentId);
+    creatorMap.put("Student_Full_Name", firstName + " " + lastName);
+    creatorMap.put("Class_Section", className + " - " + sectionName);
+    creatorMap.put("Parent_Name", parentName);
+    creatorMap.put("Parent_Email", parentEmail);
+    creatorMap.put("Parent_Mobile", parentMobile);
+    creatorMap.put("Attendance_Percentage", attendancePct);
+    creatorMap.put("Total_Fees", totalFees);
+    creatorMap.put("Fees_Collected", feesCollected);
+    creatorMap.put("Outstanding_Fees", outstandingFees);
+    creatorMap.put("Fee_Status", feeStatus);
+    
+    // Step 3: Check if record exists in Creator using Creator API
+    // Workspace Link Name: "school-management-system"
+    // App Link Name: "parent-portal"
+    // Form / View Link Name: "All_Student_Portal_Records"
+    
+    ownerName = "school_admin";
+    appLinkName = "parent-portal";
+    reportLinkName = "All_Student_Portal_Records";
+    formLinkName = "Student_Parent_Portal_Record";
+    
+    criteria = "Student_ID == \"" + studentId + "\"";
+    existingCreatorRecords = zoho.creator.getRecords(ownerName, appLinkName, reportLinkName, criteria, 1, 1, "creator_connection");
+    
+    if(existingCreatorRecords.get("code") == 3000 && existingCreatorRecords.get("data").size() > 0)
+    {
+        // Update Existing Record in Creator
+        creatorRecordID = existingCreatorRecords.get("data").get(0).get("ID");
+        updateRes = zoho.creator.updateRecord(ownerName, appLinkName, reportLinkName, creatorRecordID, creatorMap, Map(), "creator_connection");
+        info "Updated Zoho Creator Parent Portal Record: " + updateRes;
+    }
+    else
+    {
+        // Insert New Record into Creator
+        addRes = zoho.creator.postRecord(ownerName, appLinkName, formLinkName, creatorMap, Map(), "creator_connection");
+        info "Added New Zoho Creator Parent Portal Record: " + addRes;
+    }
+}

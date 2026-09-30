@@ -1,0 +1,130 @@
+/*
+ * ZOHO CREATOR PARENT APPLICATION DEFINITION (Deluge / Creator Script)
+ * Application Name: School Parent Portal
+ * Workspace: school-management-system
+ */
+
+application "School Parent Portal"
+{
+    date format = "dd-MMM-yyyy"
+    time zone = "Asia/Kolkata"
+
+    /* -------------------------------------------------------------------------
+     * FORM 1: Student Parent Portal Record (Synchronized from Zoho CRM)
+     * ------------------------------------------------------------------------- */
+    form Student_Parent_Portal_Record
+    {
+        displayname = "Student Record"
+        success message = "Student record synchronized successfully."
+        field rules
+        (
+            rule Hide_System_IDs
+            (
+                type = Form_Event
+                event = Load
+                actions = hide CRM_Student_ID;
+            )
+        )
+
+        must have CRM_Student_ID
+        (
+            type = text
+            displayname = "CRM Student ID"
+        )
+        must have Student_ID
+        (
+            type = text
+            displayname = "Student ID"
+        )
+        must have Student_Full_Name
+        (
+            type = text
+            displayname = "Student Full Name"
+        )
+        must have Class_Section
+        (
+            type = text
+            displayname = "Class & Section"
+        )
+        must have Parent_Name
+        (
+            type = text
+            displayname = "Parent / Guardian Name"
+        )
+        must have Parent_Email
+        (
+            type = email
+            displayname = "Parent Email"
+        )
+        must have Parent_Mobile
+        (
+            type = phone
+            displayname = "Parent Mobile"
+        )
+        Attendance_Percentage
+        (
+            type = decimal
+            displayname = "Attendance Percentage (%)"
+        )
+        Total_Fees
+        (
+            type = currency
+            displayname = "Total Fees"
+        )
+        Fees_Collected
+        (
+            type = currency
+            displayname = "Fees Paid"
+        )
+        Outstanding_Fees
+        (
+            type = currency
+            displayname = "Outstanding Fees"
+        )
+        Fee_Status
+        (
+            type = picklist
+            values = {"Pending", "Partial", "Paid", "Overdue"}
+            displayname = "Fee Payment Status"
+        )
+
+        actions
+        {
+            on load
+            {
+                // Enforce Parent User Data Isolation: Only show records matching logged-in parent email
+                loggedInEmail = zoho.loginuserid;
+                if(zoho.adminuser != loggedInEmail)
+                {
+                    // Restrict View Criteria
+                    set criteria (Parent_Email == loggedInEmail);
+                }
+            }
+        }
+    }
+
+    /* -------------------------------------------------------------------------
+     * VIEW 1: Parent Portal Dashboard (Custom Report View)
+     * ------------------------------------------------------------------------- */
+    list All_Student_Portal_Records
+    {
+        displayName = "My Child Dashboard"
+        show all rows from Student_Parent_Portal_Record
+        (
+            Student_ID as "Student ID"
+            Student_Full_Name as "Student Name"
+            Class_Section as "Class / Section"
+            Attendance_Percentage as "Attendance (%)"
+            Total_Fees as "Total Annual Fee"
+            Fees_Collected as "Amount Paid"
+            Outstanding_Fees as "Balance Due"
+            Fee_Status as "Payment Status"
+        )
+        options
+        (
+            icon = "user"
+        )
+        
+        criteria = (Parent_Email == zoho.loginuserid);
+    }
+}

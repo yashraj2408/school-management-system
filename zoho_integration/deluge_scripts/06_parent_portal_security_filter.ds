@@ -1,0 +1,26 @@
+/*
+ * DELUGE SCRIPT 06: Zoho Creator Parent Portal Data Isolation & Security Filter
+ * Form / View Event: On Load / View Criteria Filter
+ * Logic: Strict Security enforcement ensuring logged-in parents only view records matching their authenticated email.
+ */
+
+// Zoho Creator On Load Form Action Script
+void enforceParentPortalSecurity()
+{
+    // Step 1: Obtain email ID of logged-in parent user
+    loggedInUserEmail = zoho.loginuserid;
+    
+    // Step 2: Fetch student details matching parent's email address
+    parentChildRecords = Student_Parent_Portal_Record[Parent_Email == loggedInUserEmail];
+    
+    if(parentChildRecords.count() == 0)
+    {
+        // Alert unauthorized user or unregistered parent
+        alert "No student record found associated with logged-in parent email: " + loggedInUserEmail + ". Please contact the school administration office.";
+        cancel submit;
+    }
+    else
+    {
+        info "Parent Authenticated. Authorized access granted for " + parentChildRecords.count() + " student record(s).";
+    }
+}

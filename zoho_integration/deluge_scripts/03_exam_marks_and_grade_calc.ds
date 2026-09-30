@@ -1,0 +1,82 @@
+/*
+ * DELUGE SCRIPT 03: Exam Result Calculation & Grading Engine
+ * Workflow Trigger: Module: Exam_Results | Action: Create / Edit
+ * Logic: 
+ *   1. Calculates percentage and assigns standard grading scale (A+, A, B, C, F).
+ *   2. Determines Pass/Fail status based on pass threshold (40%).
+ *   3. Constructs unique result key to prevent duplicate exam entries.
+ */
+
+void calculateExamResultsAndGrades(bigint examResultId)
+{
+    // Step 1: Fetch Exam Result Record
+    resultRec = zoho.crm.getRecordById("Exam_Results", examResultId);
+    
+    marksObtained = ifNull(resultRec.get("Marks_Obtained"), 0).toDecimal();
+    maxMarks = ifNull(resultRec.get("Max_Marks"), 100).toDecimal();
+    
+    if(maxMarks <= 0)
+    {
+        maxMarks = 100.0;
+    }
+    
+    // Step 2: Compute Percentage
+    percentage = (marksObtained / maxMarks) * 100;
+    percentage = percentage.round(2);
+    
+    // Step 3: Determine Grade & Pass/Fail Status
+    grade = "F";
+    resultStatus = "Fail";
+    
+    if(percentage >= 90)
+    {
+        grade = "A+";
+        resultStatus = "Pass";
+    }
+    else if(percentage >= 80)
+    {
+        grade = "A";
+        resultStatus = "Pass";
+    }
+    else if(percentage >= 70)
+    {
+        grade = "B";
+        resultStatus = "Pass";
+    }
+    else if(percentage >= 50)
+    {
+        grade = "C";
+        resultStatus = "Pass";
+    }
+    else if(percentage >= 40)
+    {
+        grade = "D";
+        resultStatus = "Pass";
+    }
+    else
+    {
+        grade = "F";
+        resultStatus = "Fail";
+    }
+    
+    // Step 4: Construct Unique Result Key (StudentID_ExamID_SubjectID)
+    studentLookup = resultRec.get("Student");
+    examLookup = resultRec.get("Examination");
+    subjectLookup = resultRec.get("Subject");
+    
+    studentId = ifNull(studentLookup.get("id"), "");
+    examId = ifNull(examLookup.get("id"), "");
+    subjectId = ifNull(subjectLookup.get("id"), "");
+    
+    resultKey = studentId + "_" + examId + "_" + subjectId;
+    
+    // Step 5: Update Exam_Results Record
+    updateMap = Map();
+    updateMap.put("Percentage", percentage);
+    updateMap.put("Grade", grade);
+    updateMap.put("Result_Status", resultStatus);
+    updateMap.put("Result_Key", resultKey);
+    
+    response = zoho.crm.updateRecord("Exam_Results", examResultId, updateMap);
+    info "Successfully processed Exam Result ID: " + examResultId + " | %: " + percentage + " | Grade: " + grade + " | Status: " + resultStatus;
+}

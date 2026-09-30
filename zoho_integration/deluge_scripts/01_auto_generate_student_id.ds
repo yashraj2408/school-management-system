@@ -1,0 +1,59 @@
+/*
+ * DELUGE SCRIPT 01: Auto-Generate Unique Student ID
+ * Workflow Trigger: Module: Students | Action: Create / Edit (When Student_ID is Empty)
+ * Logic: Queries current year, counts existing students, formats ID as STD-YYYY-XXXX
+ */
+
+void generateStudentUniqueId(bigint studentRecordId)
+{
+    // Step 1: Fetch current student record
+    studentRecord = zoho.crm.getRecordById("Students", studentRecordId);
+    
+    // Check if Student ID is already generated
+    existingStudentId = ifNull(studentRecord.get("Student_ID"), "");
+    if(existingStudentId != "")
+    {
+        info "Student ID already exists: " + existingStudentId;
+        return;
+    }
+    
+    // Step 2: Determine current Academic Year string
+    currentYear = year(today()).toString();
+    
+    // Step 3: Search all existing students for the current academic year to compute sequence
+    // Use COQL (CRM Object Query Language) or searchRecords for high accuracy
+    searchCriteria = "(Student_ID:starts_with:STD-" + currentYear + ")";
+    existingStudents = zoho.crm.searchRecords("Students", searchCriteria, 1, 200);
+    
+    sequenceNumber = existingStudents.size() + 1;
+    formattedSequence = sequenceNumber.toString();
+    
+    // Pad sequence number to 4 digits (e.g. 0001, 0012, 0123)
+    if(sequenceNumber < 10)
+    {
+        formattedSequence = "000" + sequenceNumber;
+    }
+    else if(sequenceNumber < 100)
+    {
+        formattedSequence = "00" + sequenceNumber;
+    }
+    else if(sequenceNumber < 1000)
+    {
+        formattedSequence = "0" + sequenceNumber;
+    }
+    
+    newStudentId = "STD-" + currentYear + "-" + formattedSequence;
+    
+    // Step 4: Update Student Record in CRM
+    updateMap = Map();
+    updateMap.put("Student_ID", newStudentId);
+    
+    // Set default values if empty
+    if(studentRecord.get("Student_Status") == null || studentRecord.get("Student_Status") == "")
+    {
+        updateMap.put("Student_Status", "Active");
+    }
+    
+    response = zoho.crm.updateRecord("Students", studentRecordId, updateMap);
+    info "Successfully generated Student ID: " + newStudentId + " Response: " + response;
+}

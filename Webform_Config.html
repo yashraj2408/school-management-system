@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Admission Enquiry Form | Zoho CRM Webform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg-gradient: linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --input-bg: rgba(15, 23, 42, 0.6);
+            --input-border: #334155;
+            --focus-ring: rgba(99, 102, 241, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+            color: var(--text-primary);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.85rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #818CF8, #C084FC);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #CBD5E1;
+        }
+
+        label .required {
+            color: #EF4444;
+        }
+
+        input, select, textarea {
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--focus-ring);
+        }
+
+        select option {
+            background-color: #0F172A;
+            color: #F8FAFC;
+        }
+
+        .submit-btn {
+            grid-column: span 2;
+            margin-top: 1rem;
+            background: linear-gradient(90deg, #6366F1, #8B5CF6);
+            color: #FFF;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 0.9rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.5);
+        }
+
+        .note {
+            margin-top: 1.25rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        @media (max-width: 640px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .full-width, .submit-btn {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Admission Enquiry Portal</h1>
+        <p>Submit your details to start the student admission process</p>
+    </div>
+
+    <!-- Zoho CRM Webform Integration -->
+    <form action='https://crm.zoho.com/crm/WebToLeadForm' name='WebToLeads' method='POST' accept-charset='UTF-8'>
+        <!-- Hidden Zoho CRM Webform Integration Parameters -->
+        <input type='text' style='display:none;' name='xnQsjsdp' value='ZOHO_CRM_WEBFORM_PUBLIC_KEY'/>
+        <input type='hidden' name='zc_gad' id='zc_gad' value=''/>
+        <input type='text' style='display:none;' name='xmI2418' value='ZOHO_CRM_FORM_ID'/>
+        <input type='text' style='display:none;' name='actionType' value='TGVhZHM='/>
+        <input type='text' style='display:none;' name='returnURL' value='http://localhost:8080/thank-you.html' />
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="First_Name">Student First Name <span class="required">*</span></label>
+                <input type="text" id="First_Name" name="First Name" required placeholder="e.g. Rahul">
+            </div>
+
+            <div class="form-group">
+                <label for="Last_Name">Student Last Name <span class="required">*</span></label>
+                <input type="text" id="Last_Name" name="Last Name" required placeholder="e.g. Sharma">
+            </div>
+
+            <div class="form-group">
+                <label for="Date_of_Birth">Student Date of Birth</label>
+                <input type="date" id="Date_of_Birth" name="Date of Birth">
+            </div>
+
+            <div class="form-group">
+                <label for="Grade_Applying_For">Grade Applying For <span class="required">*</span></label>
+                <select id="Grade_Applying_For" name="Grade Applying For" required>
+                    <option value="">Select Grade</option>
+                    <option value="Grade 1">Grade 1</option>
+                    <option value="Grade 2">Grade 2</option>
+                    <option value="Grade 3">Grade 3</option>
+                    <option value="Grade 4">Grade 4</option>
+                    <option value="Grade 5">Grade 5</option>
+                    <option value="Grade 6">Grade 6</option>
+                    <option value="Grade 7">Grade 7</option>
+                    <option value="Grade 8">Grade 8</option>
+                    <option value="Grade 9">Grade 9</option>
+                    <option value="Grade 10">Grade 10</option>
+                    <option value="Grade 11">Grade 11</option>
+                    <option value="Grade 12">Grade 12</option>
+                </select>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="Parent_Name">Parent / Guardian Full Name <span class="required">*</span></label>
+                <input type="text" id="Parent_Name" name="Parent Name" required placeholder="e.g. Vikram Sharma">
+            </div>
+
+            <div class="form-group">
+                <label for="Email">Parent Email Address <span class="required">*</span></label>
+                <input type="email" id="Email" name="Email" required placeholder="parent@example.com">
+            </div>
+
+            <div class="form-group">
+                <label for="Phone">Parent Mobile Number <span class="required">*</span></label>
+                <input type="tel" id="Phone" name="Phone" required placeholder="+91 98765 43210">
+            </div>
+
+            <div class="form-group full-width">
+                <label for="Previous_School">Previous School Attended</label>
+                <input type="text" id="Previous_School" name="Previous School" placeholder="e.g. St. Xavier High School">
+            </div>
+
+            <button type="submit" class="submit-btn">Submit Admission Enquiry</button>
+        </div>
+
+        <p class="note">🔒 Your information is submitted directly into our secure Zoho CRM School System.</p>
+    </form>
+</div>
+
+</body>
+</html>

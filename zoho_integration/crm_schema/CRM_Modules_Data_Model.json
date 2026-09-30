@@ -1,0 +1,160 @@
+{
+  "system_name": "School Management System (Zoho CRM & Creator Integration)",
+  "version": "2.0.0",
+  "modules": [
+    {
+      "module_name": "Leads",
+      "display_name": "Admission Enquiries",
+      "api_name": "Leads",
+      "fields": [
+        {"field_name": "First Name", "api_name": "First_Name", "type": "Text", "required": true},
+        {"field_name": "Last Name", "api_name": "Last_Name", "type": "Text", "required": true},
+        {"field_name": "Parent Name", "api_name": "Parent_Name", "type": "Text", "required": true},
+        {"field_name": "Parent Email", "api_name": "Email", "type": "Email", "required": true},
+        {"field_name": "Parent Mobile", "api_name": "Phone", "type": "Phone", "required": true},
+        {"field_name": "Grade Applying For", "api_name": "Grade_Applying_For", "type": "Pick List", "options": ["Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"]},
+        {"field_name": "Previous School", "api_name": "Previous_School", "type": "Text"},
+        {"field_name": "Date of Birth", "api_name": "Date_of_Birth", "type": "Date"},
+        {"field_name": "Enquiry Date", "api_name": "Created_Time", "type": "DateTime", "system": true},
+        {"field_name": "Lead Status", "api_name": "Lead_Status", "type": "Pick List", "options": ["New Enquiry", "Contacted", "Campus Visit Scheduled", "Entrance Test Pending", "Admission Offered", "Confirmed", "Rejected"]}
+      ]
+    },
+    {
+      "module_name": "Students",
+      "display_name": "Students",
+      "api_name": "Students",
+      "primary_key": "Student_ID",
+      "fields": [
+        {"field_name": "Student ID", "api_name": "Student_ID", "type": "Auto Number / Formula", "unique": true, "format": "STD-{YYYY}-{0000}"},
+        {"field_name": "First Name", "api_name": "First_Name", "type": "Text", "required": true},
+        {"field_name": "Last Name", "api_name": "Last_Name", "type": "Text", "required": true},
+        {"field_name": "Gender", "api_name": "Gender", "type": "Pick List", "options": ["Male", "Female", "Other"]},
+        {"field_name": "Date of Birth", "api_name": "Date_of_Birth", "type": "Date"},
+        {"field_name": "Admission Date", "api_name": "Admission_Date", "type": "Date"},
+        {"field_name": "Academic Year", "api_name": "Academic_Year", "type": "Lookup", "lookup_module": "Academic_Years"},
+        {"field_name": "Current Class", "api_name": "Current_Class", "type": "Lookup", "lookup_module": "Classes"},
+        {"field_name": "Current Section", "api_name": "Current_Section", "type": "Lookup", "lookup_module": "Sections"},
+        {"field_name": "Parent Name", "api_name": "Parent_Name", "type": "Text", "required": true},
+        {"field_name": "Parent Email", "api_name": "Parent_Email", "type": "Email", "required": true},
+        {"field_name": "Parent Mobile", "api_name": "Parent_Mobile", "type": "Phone", "required": true},
+        {"field_name": "Student Status", "api_name": "Student_Status", "type": "Pick List", "options": ["Active", "Graduated", "Transferred", "Suspended"]},
+        {"field_name": "Attendance Percentage", "api_name": "Attendance_Percentage", "type": "Percent", "read_only": true},
+        {"field_name": "Total Fees", "api_name": "Total_Fees", "type": "Currency"},
+        {"field_name": "Fees Collected", "api_name": "Fees_Collected", "type": "Currency", "read_only": true},
+        {"field_name": "Outstanding Fees", "api_name": "Outstanding_Fees", "type": "Currency", "read_only": true},
+        {"field_name": "Fee Payment Status", "api_name": "Fee_Payment_Status", "type": "Pick List", "options": ["Pending", "Partial", "Paid", "Overdue"]}
+      ]
+    },
+    {
+      "module_name": "Academic_Years",
+      "display_name": "Academic Years",
+      "api_name": "Academic_Years",
+      "fields": [
+        {"field_name": "Year Name", "api_name": "Name", "type": "Text", "required": true, "example": "2026-2027"},
+        {"field_name": "Start Date", "api_name": "Start_Date", "type": "Date"},
+        {"field_name": "End Date", "api_name": "End_Date", "type": "Date"},
+        {"field_name": "Status", "api_name": "Status", "type": "Pick List", "options": ["Active", "Completed", "Upcoming"]}
+      ]
+    },
+    {
+      "module_name": "Classes",
+      "display_name": "Classes",
+      "api_name": "Classes",
+      "fields": [
+        {"field_name": "Class Name", "api_name": "Name", "type": "Text", "required": true, "example": "Class 10"},
+        {"field_name": "Class Code", "api_name": "Class_Code", "type": "Text", "unique": true},
+        {"field_name": "Grade Level", "api_name": "Grade_Level", "type": "Integer"}
+      ]
+    },
+    {
+      "module_name": "Sections",
+      "display_name": "Sections",
+      "api_name": "Sections",
+      "fields": [
+        {"field_name": "Section Name", "api_name": "Name", "type": "Text", "required": true, "example": "Section A"},
+        {"field_name": "Class", "api_name": "Class", "type": "Lookup", "lookup_module": "Classes"},
+        {"field_name": "Class Teacher", "api_name": "Class_Teacher", "type": "Lookup", "lookup_module": "Teachers"},
+        {"field_name": "Capacity", "api_name": "Capacity", "type": "Integer"}
+      ]
+    },
+    {
+      "module_name": "Subjects",
+      "display_name": "Subjects",
+      "api_name": "Subjects",
+      "fields": [
+        {"field_name": "Subject Name", "api_name": "Name", "type": "Text", "required": true},
+        {"field_name": "Subject Code", "api_name": "Subject_Code", "type": "Text", "unique": true},
+        {"field_name": "Class", "api_name": "Class", "type": "Lookup", "lookup_module": "Classes"},
+        {"field_name": "Assigned Teacher", "api_name": "Assigned_Teacher", "type": "Lookup", "lookup_module": "Teachers"}
+      ]
+    },
+    {
+      "module_name": "Teachers",
+      "display_name": "Teachers",
+      "api_name": "Teachers",
+      "fields": [
+        {"field_name": "Teacher Name", "api_name": "Name", "type": "Text", "required": true},
+        {"field_name": "Teacher ID", "api_name": "Teacher_ID", "type": "Text", "unique": true},
+        {"field_name": "Email", "api_name": "Email", "type": "Email"},
+        {"field_name": "Phone", "api_name": "Phone", "type": "Phone"},
+        {"field_name": "Specialization", "api_name": "Specialization", "type": "Text"}
+      ]
+    },
+    {
+      "module_name": "Student_Attendance",
+      "display_name": "Student Attendance",
+      "api_name": "Student_Attendance",
+      "fields": [
+        {"field_name": "Attendance Key", "api_name": "Attendance_Key", "type": "Text", "unique": true, "note": "Format: StudentID_Date"},
+        {"field_name": "Student", "api_name": "Student", "type": "Lookup", "lookup_module": "Students", "required": true},
+        {"field_name": "Attendance Date", "api_name": "Attendance_Date", "type": "Date", "required": true},
+        {"field_name": "Status", "api_name": "Status", "type": "Pick List", "options": ["Present", "Absent", "Late", "Half Day", "On Leave"], "required": true},
+        {"field_name": "Remarks", "api_name": "Remarks", "type": "Text"},
+        {"field_name": "Recorded By", "api_name": "Recorded_By", "type": "Lookup", "lookup_module": "Users"}
+      ]
+    },
+    {
+      "module_name": "Examinations",
+      "display_name": "Examinations",
+      "api_name": "Examinations",
+      "fields": [
+        {"field_name": "Exam Name", "api_name": "Name", "type": "Text", "required": true, "example": "Mid-Term Exam 2026"},
+        {"field_name": "Academic Year", "api_name": "Academic_Year", "type": "Lookup", "lookup_module": "Academic_Years"},
+        {"field_name": "Class", "api_name": "Class", "type": "Lookup", "lookup_module": "Classes"},
+        {"field_name": "Start Date", "api_name": "Start_Date", "type": "Date"},
+        {"field_name": "End Date", "api_name": "End_Date", "type": "Date"}
+      ]
+    },
+    {
+      "module_name": "Exam_Results",
+      "display_name": "Exam Results",
+      "api_name": "Exam_Results",
+      "fields": [
+        {"field_name": "Result Key", "api_name": "Result_Key", "type": "Text", "unique": true, "note": "Format: StudentID_ExamID_SubjectID"},
+        {"field_name": "Student", "api_name": "Student", "type": "Lookup", "lookup_module": "Students", "required": true},
+        {"field_name": "Examination", "api_name": "Examination", "type": "Lookup", "lookup_module": "Examinations", "required": true},
+        {"field_name": "Subject", "api_name": "Subject", "type": "Lookup", "lookup_module": "Subjects", "required": true},
+        {"field_name": "Marks Obtained", "api_name": "Marks_Obtained", "type": "Decimal", "required": true},
+        {"field_name": "Max Marks", "api_name": "Max_Marks", "type": "Decimal", "default": 100},
+        {"field_name": "Percentage", "api_name": "Percentage", "type": "Percent", "read_only": true},
+        {"field_name": "Grade", "api_name": "Grade", "type": "Text", "read_only": true},
+        {"field_name": "Result Status", "api_name": "Result_Status", "type": "Pick List", "options": ["Pass", "Fail"]}
+      ]
+    },
+    {
+      "module_name": "Fee_Payments",
+      "display_name": "Fee Payments",
+      "api_name": "Fee_Payments",
+      "fields": [
+        {"field_name": "Payment Receipt No", "api_name": "Receipt_No", "type": "Text", "unique": true},
+        {"field_name": "Student", "api_name": "Student", "type": "Lookup", "lookup_module": "Students", "required": true},
+        {"field_name": "Amount Paid", "api_name": "Amount_Paid", "type": "Currency", "required": true},
+        {"field_name": "Payment Date", "api_name": "Payment_Date", "type": "Date", "required": true},
+        {"field_name": "Payment Mode", "api_name": "Payment_Mode", "type": "Pick List", "options": ["Cash", "Cheque", "Online Transfer", "Credit Card", "UPI"]},
+        {"field_name": "Installment Number", "api_name": "Installment_No", "type": "Pick List", "options": ["Installment 1", "Installment 2", "Installment 3", "Installment 4", "Full Payment"]},
+        {"field_name": "Transaction Reference", "api_name": "Transaction_Ref", "type": "Text"},
+        {"field_name": "Remarks", "api_name": "Remarks", "type": "Text"}
+      ]
+    }
+  ]
+}

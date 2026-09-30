@@ -1,0 +1,78 @@
+/*
+ * DELUGE SCRIPT 02: Attendance Duplicate Validation & Attendance % Recalculation
+ * Workflow Trigger: Module: Student_Attendance | Action: Create / Edit
+ * Logic: 
+ *   1. Prevents duplicate attendance entries for the same student on the same date.
+ *   2. Automatically updates total attendance percentage on the parent Student record.
+ */
+
+void validateAndCalculateAttendance(bigint attendanceRecordId)
+{
+    // Step 1: Fetch current attendance record
+    attendanceRec = zoho.crm.getRecordById("Student_Attendance", attendanceRecordId);
+    
+    studentLookup = attendanceRec.get("Student");
+    if(studentLookup == null)
+    {
+        info "Error: Student lookup is null.";
+        return;
+    }
+    
+    studentId = studentLookup.get("id");
+    attendanceDate = attendanceRec.get("Attendance_Date");
+    
+    // Construct unique key: StudentID_YYYY-MM-DD
+    uniqueKey = studentId.toString() + "_" + attendanceDate;
+    
+    // Step 2: Validate against existing attendance records to prevent duplicates
+    searchCriteria = "((Student:equals:" + studentId + ") and (Attendance_Date:equals:" + attendanceDate + "))";
+    existingRecords = zoho.crm.searchRecords("Student_Attendance", searchCriteria, 1, 10);
+    
+    if(existingRecords.size() > 1)
+    {
+        info "DUPLICATE ATTENDANCE DETECTED for Student: " + studentId + " on " + attendanceDate;
+        // In CRM custom workflow, log duplicate error and cancel/flag record
+        flagMap = Map();
+        flagMap.put("Remarks", "DUPLICATE ENTRY DETECTED - PLEASE REVIEW");
+        zoho.crm.updateRecord("Student_Attendance", attendanceRecordId, flagMap);
+    }
+    else
+    {
+        // Update Attendance Key field for indexing
+        keyMap = Map();
+        keyMap.put("Attendance_Key", uniqueKey);
+        zoho.crm.updateRecord("Student_Attendance", attendanceRecordId, keyMap);
+    }
+    
+    // Step 3: Recalculate Student Overall Attendance Percentage
+    allStudentAttendance = zoho.crm.searchRecords("Student_Attendance", "(Student:equals:" + studentId + ")", 1, 200);
+    
+    totalDays = allStudentAttendance.size();
+    presentCount = 0;
+    
+    for each att in allStudentAttendance
+    {
+        status = att.get("Status");
+        if(status == "Present" || status == "Late")
+        {
+            presentCount = presentCount + 1;
+        }
+        else if(status == "Half Day")
+        {
+            presentCount = presentCount + 0.5;
+        }
+    }
+    
+    attendancePercentage = 0.0;
+    if(totalDays > 0)
+    {
+        attendancePercentage = (presentCount / totalDays) * 100;
+    }
+    
+    // Step 4: Update Student record in CRM
+    studentUpdate = Map();
+    studentUpdate.put("Attendance_Percentage", attendancePercentage.round(2));
+    
+    zoho.crm.updateRecord("Students", studentId, studentUpdate);
+    info "Updated Student " + studentId + " Attendance %: " + attendancePercentage.round(2) + "%";
+}

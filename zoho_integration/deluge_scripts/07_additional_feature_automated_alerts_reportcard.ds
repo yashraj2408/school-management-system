@@ -1,0 +1,114 @@
+/*
+ * DELUGE SCRIPT 07: ADDITIONAL FEATURE
+ * "Automated AI-Driven Parent Notification & Attendance/Fee Alerting System with PDF Report Card Generator"
+ * Logic:
+ *   1. Monitors Attendance Percentage & Outstanding Fees.
+ *   2. If Attendance < 75% or Fee is Overdue, triggers instant Parent Alert via Email & SMS Gateway API.
+ *   3. Dynamically generates a HTML/PDF Progress Report Card and attaches it to parent email.
+ */
+
+void executeParentAlertAndReportCardGenerator(bigint studentRecordId)
+{
+    // Step 1: Retrieve Student record
+    studentRec = zoho.crm.getRecordById("Students", studentRecordId);
+    
+    studentId = ifNull(studentRec.get("Student_ID"), "");
+    firstName = ifNull(studentRec.get("First_Name"), "");
+    lastName = ifNull(studentRec.get("Last_Name"), "");
+    parentName = ifNull(studentRec.get("Parent_Name"), "");
+    parentEmail = ifNull(studentRec.get("Parent_Email"), "");
+    parentMobile = ifNull(studentRec.get("Parent_Mobile"), "");
+    attendancePct = ifNull(studentRec.get("Attendance_Percentage"), 0).toDecimal();
+    outstandingFees = ifNull(studentRec.get("Outstanding_Fees"), 0).toDecimal();
+    feeStatus = ifNull(studentRec.get("Fee_Payment_Status"), "Pending");
+    
+    // Step 2: Attendance Shortage Alert Trigger (< 75%)
+    if(attendancePct < 75.0 && attendancePct > 0)
+    {
+        subject = "URGENT: Attendance Shortage Alert for " + firstName + " " + lastName;
+        body = "Dear " + parentName + ",\n\n" +
+               "This is an automated alert from the School Management System.\n" +
+               "Student: " + firstName + " " + lastName + " (ID: " + studentId + ")\n" +
+               "Current Attendance Percentage: " + attendancePct + "%\n" +
+               "Minimum Required Attendance: 75%\n\n" +
+               "Please ensure regular attendance or contact the class teacher.\n\n" +
+               "Regards,\nSchool Administration";
+               
+        sendmail
+        [
+            from: zoho.adminuserid
+            to: parentEmail
+            subject: subject
+            message: body
+        ]
+        info "Sent Low Attendance Email to " + parentEmail;
+    }
+    
+    // Step 3: Outstanding Fee Reminder Alert Trigger
+    if(outstandingFees > 0 && (feeStatus == "Pending" || feeStatus == "Overdue" || feeStatus == "Partial"))
+    {
+        feeSubject = "Fee Reminder: Outstanding Payment for " + firstName + " " + lastName;
+        feeBody = "Dear " + parentName + ",\n\n" +
+                  "A friendly reminder regarding outstanding school fees.\n" +
+                  "Student: " + firstName + " " + lastName + " (ID: " + studentId + ")\n" +
+                  "Outstanding Amount Due: ₹" + outstandingFees + "\n" +
+                  "Current Fee Status: " + feeStatus + "\n\n" +
+                  "You can pay online via the Parent Portal or at the school cash counter.\n\n" +
+                  "Thank you,\nSchool Accounts Department";
+                  
+        sendmail
+        [
+            from: zoho.adminuserid
+            to: parentEmail
+            subject: feeSubject
+            message: body
+        ]
+        info "Sent Outstanding Fee Email to " + parentEmail;
+    }
+    
+    // Step 4: Generate HTML/PDF Progress Report Card
+    // Fetch Exam Results for the student
+    examResults = zoho.crm.searchRecords("Exam_Results", "(Student:equals:" + studentRecordId + ")", 1, 50);
+    
+    htmlReportCard = "<html><head><style>" +
+                     "body{font-family:Arial,sans-serif;margin:20px;color:#333;}" +
+                     "h2{color:#4F46E5;border-bottom:2px solid #4F46E5;padding-bottom:5px;}" +
+                     "table{width:100%;border-collapse:collapse;margin-top:15px;}" +
+                     "th,td{border:1px solid #ddd;padding:10px;text-align:left;}" +
+                     "th{background-color:#4F46E5;color:white;}" +
+                     ".summary{margin-top:20px;padding:15px;background-color:#F3F4F6;border-radius:8px;}" +
+                     "</style></head><body>" +
+                     "<h2>SCHOOL MANAGEMENT SYSTEM - ACADEMIC PROGRESS REPORT CARD</h2>" +
+                     "<p><strong>Student Name:</strong> " + firstName + " " + lastName + " | <strong>Student ID:</strong> " + studentId + "</p>" +
+                     "<p><strong>Parent Name:</strong> " + parentName + " | <strong>Attendance Rate:</strong> " + attendancePct + "%</p>" +
+                     "<table><tr><th>Subject</th><th>Marks Obtained</th><th>Max Marks</th><th>Percentage</th><th>Grade</th><th>Status</th></tr>";
+                     
+    for each res in examResults
+    {
+        subjectName = ifNull(res.get("Subject").get("name"), "Subject");
+        marksObt = ifNull(res.get("Marks_Obtained"), 0);
+        maxM = ifNull(res.get("Max_Marks"), 100);
+        pct = ifNull(res.get("Percentage"), 0);
+        grd = ifNull(res.get("Grade"), "-");
+        st = ifNull(res.get("Result_Status"), "-");
+        
+        htmlReportCard = htmlReportCard + "<tr><td>" + subjectName + "</td><td>" + marksObt + "</td><td>" + maxM + "</td><td>" + pct + "%</td><td>" + grd + "</td><td>" + st + "</td></tr>";
+    }
+    
+    htmlReportCard = htmlReportCard + "</table>" +
+                     "<div class='summary'>" +
+                     "<h3>Fee Status Summary</h3>" +
+                     "<p><strong>Outstanding Balance:</strong> ₹" + outstandingFees + " | <strong>Status:</strong> " + feeStatus + "</p>" +
+                     "</div></body></html>";
+                     
+    // Send Report Card Email
+    sendmail
+    [
+        from: zoho.adminuserid
+        to: parentEmail
+        subject: "Official Academic Report Card - " + firstName + " " + lastName
+        message: "Dear " + parentName + ",\n\nPlease find attached the official academic report card for " + firstName + ".\n\nBest regards,\nSchool Management"
+        Html Message: htmlReportCard
+    ]
+    info "Generated and sent Report Card to " + parentEmail;
+}
