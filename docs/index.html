@@ -88,6 +88,18 @@
             font-weight: 800; font-size: 1.2rem; color: #FFF;
         }
         .logo h2 { font-size: 1.3rem; font-weight: 700; color: var(--text-primary); }
+        
+        .route-nav {
+            display: flex; gap: 0.4rem; background: var(--input-bg);
+            border: 1px solid var(--input-border); border-radius: 10px; padding: 0.35rem;
+        }
+        .route-link {
+            color: var(--text-secondary); text-decoration: none; font-size: 0.82rem; font-weight: 600;
+            padding: 0.45rem 0.85rem; border-radius: 6px; transition: all 0.2s ease;
+        }
+        .route-link:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.05); }
+        .route-link.active { background: var(--primary); color: #FFF; }
+
         .user-info-bar { display: flex; align-items: center; gap: 0.85rem; }
         .user-role-badge {
             background: rgba(37, 99, 235, 0.15); border: 1px solid rgba(37, 99, 235, 0.3);
@@ -215,6 +227,12 @@
                 <h2>School Management System</h2>
                 <span style="font-size:0.8rem; color:var(--text-secondary)" id="sub-header-role">Logged in as Administrator</span>
             </div>
+        </div>
+        <div class="route-nav">
+            <a href="#/admin" class="route-link active" id="route-link-admin">🛡️ Admin</a>
+            <a href="#/staff" class="route-link" id="route-link-staff">👨‍🏫 Staff</a>
+            <a href="#/student" class="route-link" id="route-link-student">🎒 Student</a>
+            <a href="#/parent" class="route-link" id="route-link-parent">👨‍👩‍👧 Parent</a>
         </div>
         <div class="user-info-bar">
             <span class="user-role-badge" id="user-display-name">Role: Admin</span>
@@ -1019,75 +1037,112 @@
         else if(role === 'parent') emailField.value = 'vikram.sharma@example.com';
     }
 
+    // SPA ROUTER LOGIC FOR ADMIN, STAFF, STUDENT, PARENT
+    let currentRole = 'admin';
+
+    function navigateToRoute(routeHash) {
+        window.location.hash = routeHash;
+    }
+
+    function handleRoute() {
+        const hash = window.location.hash || '#/admin';
+        const parts = hash.replace(/^#\//, '').split('/');
+        const role = parts[0] || 'admin';
+        const tab = parts[1] || null;
+
+        if (['admin', 'staff', 'student', 'parent'].includes(role)) {
+            currentRole = role;
+            document.getElementById('login-overlay').style.display = 'none';
+
+            // Switch Portal Section
+            document.querySelectorAll('.portal-section').forEach(sec => sec.classList.remove('active'));
+            const portalEl = document.getElementById('portal-' + role);
+            if (portalEl) portalEl.classList.add('active');
+
+            // Update Top Route Nav Link Highlight
+            document.querySelectorAll('.route-link').forEach(link => link.classList.remove('active'));
+            const routeLink = document.getElementById('route-link-' + role);
+            if (routeLink) routeLink.classList.add('active');
+
+            // Update User Role Badge & Email
+            const emailMap = {
+                admin: 'admin@school.edu',
+                staff: 'ramesh.kumar@school.edu',
+                student: 'aarav.sharma@student.edu',
+                parent: 'vikram.sharma@example.com'
+            };
+            document.getElementById('sub-header-role').innerText = `Logged in as ${role.toUpperCase()} (${emailMap[role] || ''})`;
+            document.getElementById('user-display-name').innerText = `Role: ${role.toUpperCase()}`;
+
+            // Handle Sub-Tab Routing if specified
+            if (role === 'admin' && tab) showAdminTab(tab, false);
+            else if (role === 'staff' && tab) showStaffSubTab(tab, false);
+            else if (role === 'student' && tab) showStudentSubTab(tab, false);
+            else if (role === 'parent' && tab) showParentSubTab(tab, false);
+        } else if (role === 'login') {
+            document.getElementById('login-overlay').style.display = 'flex';
+        }
+    }
+
+    window.addEventListener('hashchange', handleRoute);
+    window.addEventListener('load', handleRoute);
+
+    function showAdminTab(tabName, updateHash = true) {
+        document.querySelectorAll('.admin-tab').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('#portal-admin .tab-btn').forEach(el => el.classList.remove('active'));
+        const targetTab = document.getElementById('admin-' + tabName);
+        if (targetTab) targetTab.style.display = 'block';
+
+        const btn = document.querySelector(`#portal-admin .tab-btn[onclick*="'${tabName}'"]`);
+        if (btn) btn.classList.add('active');
+
+        if (updateHash) navigateToRoute(`#/admin/${tabName}`);
+    }
+
+    function showStaffSubTab(subTabName, updateHash = true) {
+        document.querySelectorAll('.staff-subtab').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('#portal-staff .tab-btn').forEach(el => el.classList.remove('active'));
+        const targetTab = document.getElementById('staff-tab-' + subTabName);
+        if (targetTab) targetTab.style.display = 'block';
+
+        const btn = document.querySelector(`#portal-staff .tab-btn[onclick*="'${subTabName}'"]`);
+        if (btn) btn.classList.add('active');
+
+        if (updateHash) navigateToRoute(`#/staff/${subTabName}`);
+    }
+
+    function showStudentSubTab(subTabName, updateHash = true) {
+        document.querySelectorAll('.student-subtab').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('#portal-student .tab-btn').forEach(el => el.classList.remove('active'));
+        const targetTab = document.getElementById('student-tab-' + subTabName);
+        if (targetTab) targetTab.style.display = 'block';
+
+        const btn = document.querySelector(`#portal-student .tab-btn[onclick*="'${subTabName}'"]`);
+        if (btn) btn.classList.add('active');
+
+        if (updateHash) navigateToRoute(`#/student/${subTabName}`);
+    }
+
+    function showParentSubTab(subTabName, updateHash = true) {
+        document.querySelectorAll('.parent-subtab').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('#portal-parent .tab-btn').forEach(el => el.classList.remove('active'));
+        const targetTab = document.getElementById('parent-tab-' + subTabName);
+        if (targetTab) targetTab.style.display = 'block';
+
+        const btn = document.querySelector(`#portal-parent .tab-btn[onclick*="'${subTabName}'"]`);
+        if (btn) btn.classList.add('active');
+
+        if (updateHash) navigateToRoute(`#/parent/${subTabName}`);
+    }
+
     function handleLogin(event) {
         event.preventDefault();
         const role = document.getElementById('selected-role').value;
-        const email = document.getElementById('login-email').value;
-
-        document.getElementById('login-overlay').style.display = 'none';
-        document.querySelectorAll('.portal-section').forEach(sec => sec.classList.remove('active'));
-        document.getElementById('portal-' + role).classList.add('active');
-
-        document.getElementById('sub-header-role').innerText = 'Logged in as ' + role.toUpperCase() + ' (' + email + ')';
-        document.getElementById('user-display-name').innerText = 'Role: ' + role.toUpperCase();
+        navigateToRoute('#/' + role);
     }
 
-    function showParentSubTab(subTabName) {
-        document.querySelectorAll('.parent-subtab').forEach(el => el.style.display = 'none');
-        document.querySelectorAll('#portal-parent .tab-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById('parent-tab-' + subTabName).style.display = 'block';
-        event.target.classList.add('active');
-    }
-
-    function payParentFeesOnline() {
-        const student = database.students.find(s => s.name === "Aarav Sharma");
-        alert("💳 ONLINE PAYMENT GATEWAY\n\nProcessing Term 3 Balance Payment of $1,000.00 for Aarav Sharma...\n\n✅ Payment Successful! Transaction ID: TXN-2026-99482");
-
-        if (student) {
-            student.feeStatus = 'Paid';
-        }
-        document.getElementById('parent-portal-fee-badge').innerHTML = '<span class="badge badge-success" style="font-size:1.1rem; padding:0.4rem 0.8rem;">PAID</span>';
-        document.getElementById('parent-portal-balance').innerText = '$0.00';
-        document.getElementById('fee-paid-term3').innerText = '$1,000.00';
-        document.getElementById('fee-badge-term3').className = 'badge badge-success';
-        document.getElementById('fee-badge-term3').innerText = '✓ Paid';
-        const payBtn = document.getElementById('parent-pay-btn');
-        if(payBtn) {
-            payBtn.disabled = true;
-            payBtn.innerText = '✓ All Fees Paid';
-            payBtn.style.opacity = '0.5';
-        }
-        if(typeof renderAdminStudents === 'function') {
-            renderAdminStudents(currentAdminStudentClass || "Class 10");
-        }
-    }
-
-    function openHeroVideoModal(videoSrc) {
-        const modal = document.getElementById('hero-video-modal');
-        const iframe = document.getElementById('hero-video-iframe');
-        if(iframe && modal) {
-            iframe.src = videoSrc;
-            modal.style.display = 'flex';
-        }
-    }
-
-    function closeHeroVideoModal(event) {
-        if (!event || event.target.id === 'hero-video-modal' || event.target.classList.contains('hero-modal-close')) {
-            const modal = document.getElementById('hero-video-modal');
-            const iframe = document.getElementById('hero-video-iframe');
-            if(iframe && modal) {
-                iframe.src = '';
-                modal.style.display = 'none';
-            }
-        }
-    }
-
-    function logout() { document.getElementById('login-overlay').style.display = 'flex'; }
-    function showAdminTab(tabName) {
-        document.querySelectorAll('.admin-tab').forEach(el => el.style.display = 'none');
-        document.querySelectorAll('#portal-admin .tab-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById('admin-' + tabName).style.display = 'block';
-        event.target.classList.add('active');
+    function logout() {
+        navigateToRoute('#/login');
     }
 </script>
 
