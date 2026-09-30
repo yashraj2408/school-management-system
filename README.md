@@ -3,6 +3,8 @@
 
 Welcome to the **School Management System (SMS)** built for **Zoho CRM**, **Zoho Creator**, and **Supabase PostgreSQL Cloud Database**.
 
+> 📖 **Full System Architecture & Technical Plan**: Read [`SYSTEM_ARCHITECTURE_PLAN.md`](./SYSTEM_ARCHITECTURE_PLAN.md) for full code architecture diagrams, role access matrices, data schemas, and security implementation details.
+
 ---
 
 ## 🔑 Complete Master Login Credentials Directory
