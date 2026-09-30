@@ -137,14 +137,17 @@
         }
         input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
 
-        /* LOGIN OVERLAY */
+        /* LOGIN OVERLAY FULL PAGE */
         .login-overlay {
-            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px);
-            z-index: 9999; display: flex; align-items: center; justify-content: center;
+            position: fixed; inset: 0; 
+            background: #F1F5F9;
+            background-image: radial-gradient(#CBD5E1 1px, transparent 1px);
+            background-size: 24px 24px;
+            z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 1.5rem;
         }
         .login-card {
-            background: #FFFFFF; border-radius: 12px; padding: 2.5rem; width: 100%; max-width: 440px;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); text-align: center;
+            background: #FFFFFF; border: 1px solid var(--card-border); border-radius: 12px; padding: 2.5rem; width: 100%; max-width: 440px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.06), 0 10px 10px -5px rgba(0,0,0,0.02); text-align: center;
         }
         .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 1.5rem 0; }
         .role-btn {
@@ -1039,9 +1042,14 @@
         const role = parts[0] || 'admin';
         const tab = parts[1] || null;
 
+        const sidebarEl = document.querySelector('.sidebar');
+        const appLayoutEl = document.querySelector('.app-layout');
+
         if (['admin', 'staff', 'student', 'parent'].includes(role)) {
             currentRole = role;
             document.getElementById('login-overlay').style.display = 'none';
+            if (sidebarEl) sidebarEl.style.display = 'flex';
+            if (appLayoutEl) appLayoutEl.style.display = 'flex';
 
             document.querySelectorAll('.portal-section').forEach(sec => sec.classList.remove('active'));
             const portalEl = document.getElementById('portal-' + role);
@@ -1072,6 +1080,8 @@
             else if (role === 'parent' && tab) showParentSubTab(tab, false);
         } else if (role === 'login') {
             document.getElementById('login-overlay').style.display = 'flex';
+            if (sidebarEl) sidebarEl.style.display = 'none';
+            if (appLayoutEl) appLayoutEl.style.display = 'none';
         }
     }
 
