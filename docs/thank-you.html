@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enquiry Received | School Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%);
+            --card-bg: rgba(30, 41, 59, 0.75);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --primary-gradient: linear-gradient(90deg, #6366F1, #8B5CF6);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            color: var(--text-primary);
+        }
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 3rem;
+            max-width: 540px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6);
+        }
+        .icon-box {
+            width: 80px;
+            height: 80px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 2px solid #10B981;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem auto;
+            color: #10B981;
+            font-size: 2.2rem;
+        }
+        h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(90deg, #34D399, #818CF8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+        .btn {
+            display: inline-block;
+            background: var(--primary-gradient);
+            color: #FFF;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.85rem 2rem;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(99, 102, 241, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon-box">✓</div>
+        <h1>Admission Enquiry Submitted!</h1>
+        <p>Thank you for submitting your enquiry. Your details have been ingested into our <strong>Zoho CRM & Supabase</strong> database system. Our admissions team will contact you shortly.</p>
+        <a href="http://localhost:8080/index.html" class="btn">Go to Admin & Parent Dashboard</a>
+    </div>
+</body>
+</html>
