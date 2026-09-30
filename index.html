@@ -3,449 +3,477 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>School Management System | Multi-Role Portal (15 Teachers Round-Robin)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>SMS | School Management ERP System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-base: #0F172A;
-            --card-bg: #1E293B;
-            --card-border: #334155;
-            --text-primary: #F8FAFC;
-            --text-secondary: #94A3B8;
+            --bg-page: #F6F7F9;
+            --bg-sidebar: #0F172A;
+            --sidebar-border: #1E293B;
+            --sidebar-text: #94A3B8;
+            --sidebar-text-active: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --card-border: #E5E7EB;
+            --text-main: #111827;
+            --text-muted: #6B7280;
             --primary: #2563EB;
             --primary-hover: #1D4ED8;
-            --accent-emerald: #10B981;
-            --accent-amber: #F59E0B;
-            --accent-rose: #EF4444;
-            --input-bg: #0F172A;
-            --input-border: #475569;
+            --success-bg: #DCFCE7;
+            --success-text: #15803D;
+            --warning-bg: #FEF3C7;
+            --warning-text: #B45309;
+            --danger-bg: #FEE2E2;
+            --danger-text: #B91C1C;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; }
 
         body {
-            background: var(--bg-base);
-            min-height: 100vh; color: var(--text-primary); padding: 1.5rem;
+            background: var(--bg-page); color: var(--text-main); min-height: 100vh; display: flex;
         }
 
-        .container { max-width: 1400px; margin: 0 auto; }
+        /* SIDEBAR STYLING */
+        .sidebar {
+            width: 260px; background: var(--bg-sidebar); border-right: 1px solid var(--sidebar-border);
+            display: flex; flex-direction: column; flex-shrink: 0; min-height: 100vh; position: fixed; left: 0; top: 0; bottom: 0; z-index: 100;
+        }
+        .sidebar-brand {
+            padding: 1.25rem 1.25rem; border-bottom: 1px solid var(--sidebar-border); display: flex; align-items: center; gap: 0.75rem;
+        }
+        .brand-icon {
+            width: 36px; height: 36px; background: var(--primary); border-radius: 8px; color: white;
+            display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem;
+        }
+        .brand-text h2 { font-size: 1rem; font-weight: 700; color: #F8FAFC; line-height: 1.2; }
+        .brand-text p { font-size: 0.72rem; color: #64748B; }
 
-        .login-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.95);
-            display: flex; align-items: center; justify-content: center; z-index: 9999;
+        .sidebar-nav { padding: 1.25rem 0.75rem; flex: 1; overflow-y: auto; }
+        .nav-section-title {
+            font-size: 0.68rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.8px;
+            padding: 0.75rem 0.75rem 0.35rem 0.75rem; margin-top: 0.4rem;
         }
+        .nav-item {
+            display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 0.85rem; border-radius: 8px;
+            color: var(--sidebar-text); text-decoration: none; font-size: 0.88rem; font-weight: 600; transition: all 0.15s ease;
+            margin-bottom: 0.2rem; cursor: pointer;
+        }
+        .nav-item:hover { color: var(--sidebar-text-active); background: rgba(255, 255, 255, 0.05); }
+        .nav-item.active { background: var(--primary); color: #FFFFFF; }
+        .nav-item svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
 
-        .login-card {
-            background: var(--card-bg); border: 1px solid var(--card-border);
-            border-radius: 16px; padding: 2.5rem 2rem; width: 100%; max-width: 460px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
-            text-align: center; position: relative;
-        }
-
-        .login-header h2 {
-            font-size: 1.6rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.35rem;
-        }
-
-        .role-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 1.5rem 0; }
-        .role-option {
-            background: var(--input-bg); border: 1px solid var(--input-border);
-            border-radius: 10px; padding: 0.75rem; color: var(--text-secondary);
-            font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease;
-        }
-        .role-option:hover { color: var(--text-primary); border-color: var(--primary); }
-        .role-option.active {
-            background: var(--primary); color: #FFF; border-color: var(--primary);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-        }
-
-        .form-group { display: flex; flex-direction: column; gap: 0.4rem; text-align: left; margin-bottom: 1.1rem; }
-        label { font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        input, select {
-            background: var(--input-bg); border: 1px solid var(--input-border);
-            border-radius: 8px; padding: 0.75rem 1rem; color: var(--text-primary);
-            font-size: 0.9rem; outline: none; transition: border-color 0.2s ease;
-        }
-        input:focus, select:focus { border-color: var(--primary); }
-
-        .btn-submit {
-            width: 100%; background: var(--primary); color: #FFF;
-            font-size: 0.95rem; font-weight: 600; padding: 0.85rem; border: none;
-            border-radius: 10px; cursor: pointer; transition: background 0.2s ease;
-        }
-        .btn-submit:hover { background: var(--primary-hover); }
-
-        header {
-            display: flex; justify-content: space-between; align-items: center;
-            background: var(--card-bg); border: 1px solid var(--card-border);
-            border-radius: 14px; padding: 1.1rem 1.5rem; margin-bottom: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
-        }
-        .logo { display: flex; align-items: center; gap: 0.9rem; }
-        .logo-icon {
-            width: 42px; height: 42px; background: var(--primary);
-            border-radius: 10px; display: flex; align-items: center; justify-content: center;
-            font-weight: 800; font-size: 1.2rem; color: #FFF;
-        }
-        .logo h2 { font-size: 1.3rem; font-weight: 700; color: var(--text-primary); }
+        /* MAIN APP LAYOUT */
+        .app-layout { flex: 1; margin-left: 260px; display: flex; flex-direction: column; min-height: 100vh; }
         
-        .route-nav {
-            display: flex; gap: 0.4rem; background: var(--input-bg);
-            border: 1px solid var(--input-border); border-radius: 10px; padding: 0.35rem;
+        /* HEADER */
+        .top-header {
+            height: 64px; background: #FFFFFF; border-bottom: 1px solid var(--card-border);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 2rem;
+            position: sticky; top: 0; z-index: 90;
         }
-        .route-link {
-            color: var(--text-secondary); text-decoration: none; font-size: 0.82rem; font-weight: 600;
-            padding: 0.45rem 0.85rem; border-radius: 6px; transition: all 0.2s ease;
+        .header-title { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
+        
+        .header-right { display: flex; align-items: center; gap: 1.25rem; }
+        .role-pill {
+            background: #EFF6FF; border: 1px solid #BFDBFE; color: var(--primary);
+            padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600;
         }
-        .route-link:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.05); }
-        .route-link.active { background: var(--primary); color: #FFF; }
-
-        .user-info-bar { display: flex; align-items: center; gap: 0.85rem; }
-        .user-role-badge {
-            background: rgba(37, 99, 235, 0.15); border: 1px solid rgba(37, 99, 235, 0.3);
-            color: #60A5FA; padding: 0.4rem 0.95rem; border-radius: 20px; font-size: 0.82rem; font-weight: 600;
-        }
-        .btn-logout {
-            background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #F87171; padding: 0.4rem 0.95rem; border-radius: 8px; font-size: 0.82rem;
-            font-weight: 600; cursor: pointer; transition: background 0.2s ease;
-        }
-        .btn-logout:hover { background: rgba(239, 68, 68, 0.25); }
-
-        /* KPI STAT SYSTEM BANNER */
-        .kpi-banner {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.1rem; margin-bottom: 1.5rem;
-        }
-        .kpi-card {
-            background: var(--card-bg); border: 1px solid var(--card-border);
-            border-radius: 12px; padding: 1.1rem 1.3rem;
-            display: flex; flex-direction: column; gap: 0.3rem;
-        }
-        .kpi-title { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; }
-        .kpi-value { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); }
-        .kpi-subtext { font-size: 0.78rem; color: #64748B; }
-
-        .tabs-nav {
-            display: flex; gap: 0.5rem; background: var(--card-bg); padding: 0.5rem;
-            border-radius: 12px; border: 1px solid var(--card-border); margin-bottom: 1.5rem; overflow-x: auto;
-        }
-        .tab-btn {
-            background: transparent; border: none; color: var(--text-secondary);
-            padding: 0.65rem 1.25rem; font-size: 0.88rem; font-weight: 600; border-radius: 8px;
-            cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
-        }
-        .tab-btn:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.05); }
-        .tab-btn.active { background: var(--primary); color: #FFF; }
-
-        .content-panel {
-            background: var(--card-bg); border: 1px solid var(--card-border);
-            border-radius: 14px; padding: 1.75rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2); min-height: 520px;
+        .user-dropdown { display: flex; align-items: center; gap: 0.6rem; cursor: pointer; }
+        .user-avatar {
+            width: 34px; height: 34px; background: #E2E8F0; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.85rem; color: #334155;
         }
 
-        .portal-section { display: none; }
-        .portal-section.active { display: block; }
+        /* PAGE BODY CONTENT */
+        .page-content { padding: 2rem; flex: 1; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 1.1rem; border-radius: 8px; overflow: hidden; border: 1px solid var(--card-border); }
-        th, td { padding: 0.85rem 1.1rem; text-align: left; font-size: 0.88rem; }
-        th { color: var(--text-secondary); font-weight: 600; background: #0F172A; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; border-bottom: 1px solid var(--card-border); }
-        td { border-bottom: 1px solid #334155; background: #1E293B; color: var(--text-primary); }
+        /* KPI COMPACT CARDS (border-radius: 10px) */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.75rem; }
+        .kpi-compact {
+            background: #FFFFFF; border: 1px solid var(--card-border); border-radius: 10px; padding: 1.25rem;
+            display: flex; flex-direction: column; gap: 0.35rem; box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        }
+        .kpi-label { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
+        .kpi-val { font-size: 1.75rem; font-weight: 800; color: var(--text-main); }
+        .kpi-change { font-size: 0.78rem; font-weight: 600; }
+        .kpi-change.positive { color: var(--success-text); }
+        .kpi-change.warning { color: var(--warning-text); }
+
+        /* COMPACT CARD & TABLES (border-radius: 10px & 8px) */
+        .content-card {
+            background: #FFFFFF; border: 1px solid var(--card-border); border-radius: 10px;
+            padding: 1.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.03); margin-bottom: 1.75rem;
+        }
+        .card-header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; }
+        .card-header-bar h3 { font-size: 1.05rem; font-weight: 700; color: var(--text-main); }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.88rem; border-radius: 8px; overflow: hidden; }
+        th { text-align: left; padding: 0.75rem 1rem; background: #F8FAFC; color: var(--text-muted); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; border-bottom: 1px solid var(--card-border); }
+        td { padding: 0.85rem 1rem; border-bottom: 1px solid #F1F5F9; color: var(--text-main); }
         tr:last-child td { border-bottom: none; }
-        tr:hover td { background: #26334D; }
+        tr:hover td { background: #F8FAFC; }
 
-        .badge { padding: 0.3rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
-        .badge-success { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34D399; }
-        .badge-warning { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #FBBF24; }
-        .badge-danger { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #F87171; }
-        .badge-purple { background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); color: #818CF8; }
+        /* PILL BADGES (border-radius: 999px) */
+        .badge { padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+        .badge-success { background: var(--success-bg); color: var(--success-text); }
+        .badge-warning { background: var(--warning-bg); color: var(--warning-text); }
+        .badge-danger { background: var(--danger-bg); color: var(--danger-text); }
+        .badge-info { background: #EFF6FF; color: #1D4ED8; }
 
-        .btn-accept {
-            background: #10B981; color: #FFF; border: none; padding: 0.4rem 0.85rem; border-radius: 6px;
-            font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: background 0.2s ease;
+        /* BUTTONS (border-radius: 6px) */
+        .btn {
+            padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600;
+            border: 1px solid transparent; cursor: pointer; transition: all 0.15s ease; display: inline-flex; align-items: center; gap: 0.4rem;
         }
-        .btn-accept:hover { background: #059669; }
+        .btn-primary { background: var(--primary); color: #FFFFFF; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-secondary { background: #FFFFFF; border-color: var(--card-border); color: var(--text-main); }
+        .btn-secondary:hover { background: #F8FAFC; }
+        .btn-danger { background: #EF4444; color: #FFFFFF; }
 
-        .metric-mini {
-            background: #0F172A; padding: 1.25rem; border-radius: 10px; border: 1px solid var(--card-border);
+        /* INPUTS & SELECTS (border-radius: 6px) */
+        input, select {
+            background: #FFFFFF; border: 1px solid var(--card-border); border-radius: 6px;
+            padding: 0.55rem 0.85rem; color: var(--text-main); font-size: 0.88rem; outline: none; transition: border-color 0.15s ease;
         }
-        .metric-mini h4 { color: var(--text-secondary); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
-        .metric-mini .val { font-size: 1.8rem; font-weight: 700; margin-top: 0.35rem; }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
 
-        .class-selector-btn {
-            background: var(--input-bg); border: 1px solid var(--input-border);
-            color: var(--text-secondary); padding: 0.45rem 0.95rem; border-radius: 6px; font-size: 0.82rem;
-            cursor: pointer; font-weight: 600; transition: all 0.2s ease;
+        /* LOGIN OVERLAY */
+        .login-overlay {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px);
+            z-index: 9999; display: flex; align-items: center; justify-content: center;
         }
-        .class-selector-btn.active { background: var(--primary); color: #FFF; border-color: var(--primary); }
+        .login-card {
+            background: #FFFFFF; border-radius: 12px; padding: 2.5rem; width: 100%; max-width: 440px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); text-align: center;
+        }
+        .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 1.5rem 0; }
+        .role-btn {
+            padding: 0.75rem; border: 1px solid var(--card-border); border-radius: 6px; font-size: 0.88rem;
+            font-weight: 600; color: var(--text-muted); cursor: pointer; background: #FFFFFF; transition: all 0.15s ease;
+        }
+        .role-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .role-btn.active { background: var(--primary); color: #FFFFFF; border-color: var(--primary); }
 
-        .teacher-select {
-            background: var(--input-bg); border: 1px solid var(--input-border);
-            color: var(--text-primary); padding: 0.45rem 0.75rem; border-radius: 6px; font-size: 0.82rem; font-weight: 600;
+        /* DRAWER REVIEW MODAL */
+        .drawer-overlay {
+            position: fixed; inset: 0; background: rgba(17, 24, 39, 0.6); backdrop-filter: blur(4px);
+            z-index: 9999; display: none; justify-content: flex-end;
         }
+        .drawer-content {
+            width: 100%; max-width: 480px; background: #FFFFFF; height: 100%; box-shadow: -10px 0 25px rgba(0,0,0,0.15);
+            display: flex; flex-direction: column; animation: slideLeft 0.25s ease-out;
+        }
+        @keyframes slideLeft { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        .drawer-header { padding: 1.5rem; border-bottom: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; }
+        .drawer-body { padding: 1.5rem; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1.25rem; }
+        .drawer-footer { padding: 1.25rem 1.5rem; border-top: 1px solid var(--card-border); display: flex; gap: 0.75rem; justify-content: flex-end; background: #F8FAFC; }
+        .field-group { display: flex; flex-direction: column; gap: 0.3rem; }
+        .field-group label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+        .field-group .field-val { font-size: 0.95rem; font-weight: 600; color: var(--text-main); }
     </style>
 </head>
 <body>
 
-<!-- Login Modal -->
+<!-- LOGIN MODAL OVERLAY -->
 <div id="login-overlay" class="login-overlay">
     <div class="login-card">
-        <div class="login-header">
-            <h2>School Portal Access</h2>
-            <p style="color:var(--text-secondary); font-size:0.9rem;">15 Teachers (Round-Robin Class Scheduling)</p>
-        </div>
-        
-        <div class="role-selector">
-            <button type="button" class="role-option active" onclick="selectRole('admin')">👑 Admin</button>
-            <button type="button" class="role-option" onclick="selectRole('staff')">👨‍🏫 Staff / Teacher</button>
-            <button type="button" class="role-option" onclick="selectRole('student')">🎒 Student</button>
-            <button type="button" class="role-option" onclick="selectRole('parent')">👨‍👩‍👧 Parent</button>
+        <h2 style="font-size:1.5rem; font-weight:800; color:var(--text-main); margin-bottom:0.25rem;">School Management ERP</h2>
+        <p style="font-size:0.85rem; color:var(--text-muted);">Select your portal role to authenticate</p>
+
+        <div class="role-grid">
+            <button type="button" class="role-btn active" onclick="selectRole('admin')">Admin</button>
+            <button type="button" class="role-btn" onclick="selectRole('staff')">Teacher / Staff</button>
+            <button type="button" class="role-btn" onclick="selectRole('student')">Student</button>
+            <button type="button" class="role-btn" onclick="selectRole('parent')">Parent</button>
         </div>
 
         <form onsubmit="handleLogin(event)">
             <input type="hidden" id="selected-role" value="admin">
             
-            <div class="form-group">
-                <label id="username-label">Username / Email</label>
-                <input type="text" id="login-email" value="admin@school.edu" required>
+            <div style="display:flex; flex-direction:column; gap:0.4rem; text-align:left; margin-bottom:1.1rem;">
+                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">USERNAME / EMAIL</label>
+                <input type="text" id="login-email" value="admin@school.edu" required style="width:100%;">
             </div>
             
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="login-password" value="••••••••" required>
+            <div style="display:flex; flex-direction:column; gap:0.4rem; text-align:left; margin-bottom:1.5rem;">
+                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">PASSWORD</label>
+                <input type="password" id="login-password" value="••••••••" required style="width:100%;">
             </div>
 
-            <button type="submit" class="btn-submit">Login to Portal</button>
+            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:0.75rem;">Login to ERP Portal</button>
         </form>
     </div>
 </div>
 
-<div class="container">
-    <header>
-        <div class="logo">
-            <div class="logo-icon">SMS</div>
-            <div>
-                <h2>School Management System</h2>
-                <span style="font-size:0.8rem; color:var(--text-secondary)" id="sub-header-role">Logged in as Administrator</span>
+<!-- ADMISSION REVIEW DRAWER MODAL -->
+<div id="admission-drawer" class="drawer-overlay" onclick="handleDrawerBackdropClick(event)">
+    <div class="drawer-content">
+        <div class="drawer-header">
+            <h3 style="font-size:1.1rem; font-weight:700;">Admission Application Review</h3>
+            <button onclick="closeDrawer()" style="background:none; border:none; font-size:1.25rem; cursor:pointer; color:var(--text-muted);">✕</button>
+        </div>
+        <div class="drawer-body">
+            <div class="field-group">
+                <label>Enquiry Reference ID</label>
+                <div class="field-val" id="drawer-enq-id">ENQ-2026-101</div>
+            </div>
+            <div class="field-group">
+                <label>Candidate Student Name</label>
+                <div class="field-val" id="drawer-student-name">Rohan Verma</div>
+            </div>
+            <div class="field-group">
+                <label>Parent / Guardian Name</label>
+                <div class="field-val" id="drawer-parent-name">Sanjay Verma</div>
+            </div>
+            <div class="field-group">
+                <label>Parent Email Address</label>
+                <div class="field-val" id="drawer-parent-email">sanjay.verma@example.com</div>
+            </div>
+            <div class="field-group">
+                <label>Applied Grade / Class</label>
+                <div class="field-val" id="drawer-grade">Class 8</div>
+            </div>
+            <div class="field-group">
+                <label>Submitted / Requested By</label>
+                <div class="field-val" id="drawer-staff-name">Dr. Ramesh Kumar (Staff)</div>
+            </div>
+            <div class="field-group">
+                <label>Application Status</label>
+                <div id="drawer-status-badge"><span class="badge badge-warning">Pending Review</span></div>
             </div>
         </div>
-        <div class="route-nav">
-            <a href="#/admin" class="route-link active" id="route-link-admin">🛡️ Admin</a>
-            <a href="#/staff" class="route-link" id="route-link-staff">👨‍🏫 Staff</a>
-            <a href="#/student" class="route-link" id="route-link-student">🎒 Student</a>
-            <a href="#/parent" class="route-link" id="route-link-parent">👨‍👩‍👧 Parent</a>
+        <div class="drawer-footer">
+            <button class="btn btn-secondary" onclick="closeDrawer()">Cancel / Reject</button>
+            <button class="btn btn-primary" id="drawer-confirm-btn" onclick="confirmAdmissionFromDrawer()">✓ Accept & Confirm Admission</button>
         </div>
-        <div class="user-info-bar">
-            <span class="user-role-badge" id="user-display-name">Role: Admin</span>
-            <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
+</div>
+
+<!-- LEFT SIDEBAR -->
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-icon">SMS</div>
+        <div class="brand-text">
+            <h2>School Management</h2>
+            <p>Enterprise ERP Portal</p>
+        </div>
+    </div>
+
+    <div class="sidebar-nav">
+        <div class="nav-section-title">MAIN</div>
+        <a href="#/admin" class="nav-item active" id="nav-item-admin" onclick="navigateToRoute('#/admin')">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+            Dashboard
+        </a>
+        <a href="#/admin/leads" class="nav-item" id="nav-item-leads" onclick="showAdminTab('leads')">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            Admissions
+        </a>
+        <a href="#/admin/students" class="nav-item" id="nav-item-students" onclick="showAdminTab('students')">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+            Students
+        </a>
+        <a href="#/admin/teachers" class="nav-item" id="nav-item-teachers" onclick="showAdminTab('teachers')">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            Faculty
+        </a>
+        <a href="#/admin/timetables" class="nav-item" id="nav-item-timetables" onclick="showAdminTab('timetables')">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            Timetable
+        </a>
+
+        <div class="nav-section-title">MANAGEMENT</div>
+        <a href="#/staff" class="nav-item" id="nav-item-staff" onclick="navigateToRoute('#/staff')">
+            <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+            Attendance
+        </a>
+        <a href="#/parent" class="nav-item" id="nav-item-parent" onclick="navigateToRoute('#/parent')">
+            <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+            Fee Ledger
+        </a>
+        <a href="#/student" class="nav-item" id="nav-item-student" onclick="navigateToRoute('#/student')">
+            <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            Reports
+        </a>
+
+        <div class="nav-section-title">SYSTEM</div>
+        <a href="#/login" class="nav-item" onclick="logout()">
+            <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5l5 5-5 5M7 5l-5 5 5 5"></path></svg>
+            Settings
+        </a>
+    </div>
+</aside>
+
+<!-- MAIN APP CONTENT LAYOUT -->
+<div class="app-layout">
+    <!-- TOP HEADER BAR -->
+    <header class="top-header">
+        <div class="header-left">
+            <h1 class="header-title" id="header-page-title">Dashboard Overview</h1>
+        </div>
+        <div class="header-right">
+            <span class="role-pill" id="user-display-name">Role: ADMIN</span>
+            <span style="font-size:0.85rem; color:var(--text-muted);" id="sub-header-role">admin@school.edu</span>
+            <div class="user-dropdown" onclick="logout()">
+                <div class="user-avatar">A</div>
+            </div>
         </div>
     </header>
 
-    <!-- INSTITUTIONAL EXECUTIVE SYSTEM KPI BANNER -->
-    <div class="kpi-banner">
-        <div class="kpi-card">
-            <span class="kpi-title">👨‍🎓 Total Students Enrolled</span>
-            <span class="kpi-value">200 Students</span>
-            <span class="kpi-subtext">Classes 1 to 10 (20 Students / Class)</span>
-        </div>
-        <div class="kpi-card">
-            <span class="kpi-title">👨‍🏫 Teaching Faculty</span>
-            <span class="kpi-value">15 Teachers</span>
-            <span class="kpi-subtext">Deterministic Round-Robin Rotated</span>
-        </div>
-        <div class="kpi-card">
-            <span class="kpi-title">📋 Daily Teaching Limit</span>
-            <span class="kpi-value">3 Periods / Day</span>
-            <span class="kpi-subtext">Max 3 Classes per Teacher Cap</span>
-        </div>
-        <div class="kpi-card">
-            <span class="kpi-title">⚡ Database Infrastructure</span>
-            <span class="kpi-value" style="color:var(--accent-emerald);">Supabase DB</span>
-            <span class="kpi-subtext">Synced with Zoho CRM & Creator</span>
-        </div>
-    </div>
-
-    <!-- ADMIN PORTAL VIEW -->
-    <div id="portal-admin" class="portal-section active">
-        <div class="tabs-nav">
-            <button class="tab-btn active" onclick="showAdminTab('leads')">📥 Admission Enquiries & Approval</button>
-            <button class="tab-btn" onclick="showAdminTab('students')">👨‍🎓 Student Directory (Classes 1-10)</button>
-            <button class="tab-btn" onclick="showAdminTab('timetables')">📅 15-Teacher Round-Robin Timetables</button>
-            <button class="tab-btn" onclick="showAdminTab('teachers')">👨‍🏫 15 Teachers Faculty Directory</button>
+    <div class="page-content">
+        <!-- OPERATIONAL KPI CARDS -->
+        <div class="kpi-grid">
+            <div class="kpi-compact">
+                <span class="kpi-label">Total Enrolled Students</span>
+                <span class="kpi-val">200</span>
+                <span class="kpi-change positive">Classes 1–10 (+12 this month)</span>
+            </div>
+            <div class="kpi-compact">
+                <span class="kpi-label">Faculty Strength</span>
+                <span class="kpi-val">15</span>
+                <span class="kpi-change positive">3 periods/day strict load cap</span>
+            </div>
+            <div class="kpi-compact">
+                <span class="kpi-label">Pending Admissions</span>
+                <span class="kpi-val" style="color:var(--warning-text);" id="kpi-pending-val">1</span>
+                <span class="kpi-change warning">Requires attention</span>
+            </div>
+            <div class="kpi-compact">
+                <span class="kpi-label">Attendance Today</span>
+                <span class="kpi-val" style="color:var(--success-text);">96.4%</span>
+                <span class="kpi-change positive">+2.4% from yesterday</span>
+            </div>
         </div>
 
-        <div class="content-panel">
+        <!-- ADMIN PORTAL VIEW -->
+        <div id="portal-admin" class="portal-section active">
+            <!-- Sub-Tab 1: Admission Enquiries -->
             <div id="admin-leads" class="admin-tab active">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                    <h3 style="font-family:'Outfit'; font-size:1.3rem;">Admission Enquiries & Acceptance Approval</h3>
+                <div class="content-card">
+                    <div class="card-header-bar">
+                        <h3>Admission Enquiries</h3>
+                        <span style="font-size:0.85rem; color:var(--primary); font-weight:600; cursor:pointer;">View all →</span>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Student</th>
+                                <th>Grade</th>
+                                <th>Requested By</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-enquiry-table">
+                            <tr id="enq-row-101">
+                                <td><strong>ENQ-101</strong></td>
+                                <td>Rohan Verma</td>
+                                <td>Class 8</td>
+                                <td>Dr. Ramesh Kumar</td>
+                                <td><span class="badge badge-warning" id="enq-status-101">Pending</span></td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding:0.35rem 0.75rem; font-size:0.8rem;" id="enq-btn-101" onclick="openAdmissionDrawer('101', 'Rohan Verma', 'Sanjay Verma', 'sanjay.verma@example.com', 'Class 8', 'Dr. Ramesh Kumar')">Review</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Enquiry ID</th>
-                            <th>Student Name</th>
-                            <th>Parent Name</th>
-                            <th>Parent Email</th>
-                            <th>Grade Applying</th>
-                            <th>Requested By (Staff)</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="admin-enquiry-table">
-                        <tr id="enq-row-101">
-                            <td><strong>ENQ-2026-101</strong></td>
-                            <td>Rohan Verma</td>
-                            <td>Sanjay Verma</td>
-                            <td>sanjay.verma@example.com</td>
-                            <td>Class 8</td>
-                            <td><span class="badge" style="background:rgba(59,130,246,0.2); color:#60A5FA; border:1px solid rgba(59,130,246,0.4);">👨‍🏫 Dr. Ramesh Kumar</span></td>
-                            <td><span class="badge badge-warning" id="enq-status-101">Pending Approval</span></td>
-                            <td>
-                                <button class="btn-accept" id="enq-btn-101" onclick="acceptAdmission('101', 'Rohan Verma', 'Class 8', 'sanjay.verma@example.com')">✓ Accept & Confirm Admission</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
             </div>
 
+            <!-- Sub-Tab 2: Student Directory -->
             <div id="admin-students" class="admin-tab" style="display:none;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
-                    <div>
-                        <h3 style="font-family:'Outfit'; font-size:1.3rem;">Student Directory (Full Admin Edit Access)</h3>
-                        <div style="display:flex; gap:0.4rem; overflow-x:auto; margin-top:0.5rem;" id="class-filter-btns"></div>
-                    </div>
-                    <button class="btn-submit" onclick="addNewStudent()" style="width:auto; padding:0.5rem 1.2rem; font-size:0.9rem;">➕ Add New Student</button>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Student ID</th>
-                            <th>Roll #</th>
-                            <th>Student Name</th>
-                            <th>Class</th>
-                            <th>Parent Email</th>
-                            <th>Attendance %</th>
-                            <th>Fee Status</th>
-                            <th>Admin Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="admin-student-tbody"></tbody>
-                </table>
-            </div>
-
-            <div id="admin-timetables" class="admin-tab" style="display:none;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
-                    <h3 style="font-family:'Outfit'; font-size:1.3rem;">Deterministic Round-Robin Timetables</h3>
-                    <div style="display:flex; gap:0.75rem; align-items:center;">
-                        <select id="timetable-class-select" onchange="renderTimetable(this.value)" style="padding:0.55rem 1rem;">
-                            <option value="Class 1">Class 1</option>
-                            <option value="Class 2">Class 2</option>
-                            <option value="Class 3">Class 3</option>
-                            <option value="Class 4">Class 4</option>
-                            <option value="Class 5">Class 5</option>
-                            <option value="Class 6">Class 6</option>
-                            <option value="Class 7">Class 7</option>
-                            <option value="Class 8">Class 8</option>
-                            <option value="Class 9">Class 9</option>
-                            <option value="Class 10" selected>Class 10</option>
-                        </select>
-                        <button class="tab-btn active" onclick="editTimetableSlot()" style="padding:0.55rem 1.2rem; font-size:0.85rem;">✏️ Edit / Assign Timetable Slot</button>
-                    </div>
-                </div>
-                <div id="timetable-render-area"></div>
-            </div>
-
-            <div id="admin-teachers" class="admin-tab" style="display:none;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                    <h3 style="font-family:'Outfit'; font-size:1.3rem;">15 Faculty Teachers Directory</h3>
-                    <button class="btn-submit" onclick="addNewTeacher()" style="width:auto; padding:0.5rem 1.2rem; font-size:0.9rem;">➕ Add New Teacher</button>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Teacher ID</th>
-                            <th>Teacher Name</th>
-                            <th>Subject Specialization</th>
-                            <th>Daily Teaching Limit</th>
-                            <th>Status</th>
-                            <th>Admin Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="teacher-directory-tbody"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- STUDENT PORTAL VIEW -->
-    <div id="portal-student" class="portal-section">
-        <div class="content-panel">
-            <h3 style="font-family:'Outfit'; font-size:1.4rem;">🎒 Student Portal: Aarav Sharma (Class 10)</h3>
-            
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem; margin-bottom:1.75rem;">
-                <div class="metric-mini">
-                    <h4>Overall Attendance</h4>
-                    <div class="val" style="color:#34D399" id="student-portal-att">95.0%</div>
-                </div>
-                <div class="metric-mini">
-                    <h4>Exam Performance</h4>
-                    <div class="val" style="color:#818CF8">Grade A+ (95%)</div>
-                </div>
-            </div>
-
-            <div class="tabs-nav" style="background:rgba(15,23,42,0.4);">
-                <button class="tab-btn active" onclick="showStudentSubTab('exam-timetable')">📝 Upcoming Exam Timetables</button>
-                <button class="tab-btn" onclick="showStudentSubTab('class-timetable')">🗓️ Weekly Class Timetable</button>
-            </div>
-
-            <div id="student-tab-exam-timetable" class="student-subtab active">
-                <h4 style="font-family:'Outfit'; font-size:1.1rem; margin-bottom:0.75rem;">📝 Upcoming Examination Schedule</h4>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Exam Name</th>
-                            <th>Date & Time</th>
-                            <th>Subject</th>
-                            <th>Assigned Exam Hall</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Mid-Term Exam 2026</strong></td>
-                            <td>15-Oct-2026 (09:30 - 12:30 PM)</td>
-                            <td>Mathematics</td>
-                            <td>Main Auditorium (Hall A)</td>
-                            <td><span class="badge badge-warning">Upcoming</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div id="student-tab-class-timetable" class="student-subtab" style="display:none;">
-                <h4 style="font-family:'Outfit'; font-size:1.1rem; margin-bottom:0.75rem;">🗓️ My Round-Robin Class Timetable</h4>
-                <div id="student-timetable-area"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- STAFF / TEACHER PORTAL VIEW -->
-    <div id="portal-staff" class="portal-section">
-        <div class="content-panel">
-            <h3 style="font-family:'Outfit'; font-size:1.4rem;">👨‍🏫 Staff & Teacher Portal</h3>
-            
-            <div class="tabs-nav" style="background:rgba(15,23,42,0.4); margin-bottom:1.25rem;">
-                <button class="tab-btn active" onclick="showStaffSubTab('attendance')">📋 Class Attendance Logger</button>
-                <button class="tab-btn" onclick="showStaffSubTab('admissions')">📥 Admission Enquiries & Forms</button>
-            </div>
-
-            <!-- Staff Sub-Tab 1: Attendance -->
-            <div id="staff-tab-attendance" class="staff-subtab active">
-                <div style="background:rgba(15,23,42,0.6); padding:1.4rem; border-radius:18px; border:1px solid var(--card-border); margin-bottom:1.5rem;">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="content-card">
+                    <div class="card-header-bar">
                         <div>
-                            <label style="font-weight:700; color:var(--text-primary);">Select Class to Mark Attendance:</label>
-                            <select id="staff-class-dropdown" onchange="loadStaffClassRoster(this.value)" style="margin-left:0.75rem; padding:0.6rem 1.1rem;">
+                            <h3>Student Directory</h3>
+                            <div style="display:flex; gap:0.4rem; margin-top:0.6rem; overflow-x:auto;" id="class-filter-btns"></div>
+                        </div>
+                        <button class="btn btn-primary" onclick="addNewStudent()">+ Add Student</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Roll #</th>
+                                <th>Student Name</th>
+                                <th>Class</th>
+                                <th>Parent Email</th>
+                                <th>Attendance</th>
+                                <th>Fee Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-student-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sub-Tab 3: Timetable -->
+            <div id="admin-timetables" class="admin-tab" style="display:none;">
+                <div class="content-card">
+                    <div class="card-header-bar">
+                        <h3>Deterministic Round-Robin Class Timetables</h3>
+                        <div style="display:flex; gap:0.75rem; align-items:center;">
+                            <select id="timetable-class-select" onchange="renderTimetable(this.value)">
+                                <option value="Class 1">Class 1</option>
+                                <option value="Class 2">Class 2</option>
+                                <option value="Class 3">Class 3</option>
+                                <option value="Class 4">Class 4</option>
+                                <option value="Class 5">Class 5</option>
+                                <option value="Class 6">Class 6</option>
+                                <option value="Class 7">Class 7</option>
+                                <option value="Class 8">Class 8</option>
+                                <option value="Class 9">Class 9</option>
+                                <option value="Class 10" selected>Class 10</option>
+                            </select>
+                            <button class="btn btn-secondary" onclick="editTimetableSlot()">Edit Slot</button>
+                        </div>
+                    </div>
+                    <div id="timetable-render-area"></div>
+                </div>
+            </div>
+
+            <!-- Sub-Tab 4: Faculty Directory -->
+            <div id="admin-teachers" class="admin-tab" style="display:none;">
+                <div class="content-card">
+                    <div class="card-header-bar">
+                        <h3>Faculty Teachers Directory (15 Pool)</h3>
+                        <button class="btn btn-primary" onclick="addNewTeacher()">+ Add Teacher</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Teacher Name</th>
+                                <th>Subject</th>
+                                <th>Workload Cap</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teacher-directory-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- STAFF PORTAL VIEW -->
+        <div id="portal-staff" class="portal-section">
+            <div class="content-card">
+                <div class="card-header-bar">
+                    <h3>Staff Attendance & Application Submission</h3>
+                    <div style="display:flex; gap:0.5rem;">
+                        <button class="btn btn-primary" onclick="showStaffSubTab('attendance')">Mark Attendance</button>
+                        <button class="btn btn-secondary" onclick="showStaffSubTab('admissions')">Submit Admission</button>
+                    </div>
+                </div>
+
+                <div id="staff-tab-attendance" class="staff-subtab">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; background:#F8FAFC; padding:1rem; border-radius:8px; border:1px solid var(--card-border);">
+                        <div>
+                            <label style="font-weight:700; margin-right:0.5rem;">Select Class:</label>
+                            <select id="staff-class-dropdown" onchange="loadStaffClassRoster(this.value)">
                                 <option value="Class 1">Class 1</option>
                                 <option value="Class 2">Class 2</option>
                                 <option value="Class 3">Class 3</option>
@@ -458,189 +486,153 @@
                                 <option value="Class 10" selected>Class 10</option>
                             </select>
                         </div>
-                        <button type="button" class="tab-btn active" onclick="markAllPresent()">Mark All Present</button>
+                        <button type="button" class="btn btn-secondary" onclick="markAllPresent()">Mark All Present</button>
                     </div>
-                </div>
 
-                <h4>📋 Student Roster for <span id="staff-current-class-title">Class 10</span></h4>
-                <form onsubmit="submitClassAttendance(event)">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Roll #</th>
-                                <th>Student ID</th>
-                                <th>Student Name</th>
-                                <th>Attendance Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="staff-roster-tbody"></tbody>
-                    </table>
-                    <div style="margin-top:1.5rem;">
-                        <button type="submit" class="btn-submit">Submit Today's Class Attendance</button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Staff Sub-Tab 2: Teacher Admission Enquiry Submission (Admin Only Approval) -->
-            <div id="staff-tab-admissions" class="staff-subtab" style="display:none;">
-                <div style="background:rgba(15,23,42,0.6); padding:1.4rem; border-radius:18px; border:1px solid var(--card-border); margin-bottom:1.5rem;">
-                    <h4 style="font-family:'Outfit'; font-size:1.1rem; color:var(--accent-teal); margin-bottom:0.75rem;">📝 Submit New Admission Enquiry (Teacher Portal)</h4>
-                    <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:1rem;">Teachers can enter candidate details to create an admission request. Final approval is processed exclusively by the <strong>Admin</strong>.</p>
-                    <form onsubmit="handleTeacherEnquirySubmit(event)" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; align-items:end;">
-                        <div>
-                            <label style="font-size:0.85rem; color:var(--text-secondary);">Submitting Teacher Name</label>
-                            <select id="tch-enq-staffname" style="width:100%; padding:0.55rem; border-radius:8px; border:1px solid var(--card-border); background:rgba(15,23,42,0.8); color:white;">
-                                <option value="Dr. Ramesh Kumar">Dr. Ramesh Kumar (Staff)</option>
-                                <option value="Ms. Neha Sharma">Ms. Neha Sharma (Staff)</option>
-                                <option value="Prof. Vikram Malhotra">Prof. Vikram Malhotra (Staff)</option>
-                                <option value="Dr. Sneha Paul">Dr. Sneha Paul (Staff)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label style="font-size:0.85rem; color:var(--text-secondary);">Student Full Name</label>
-                            <input type="text" id="tch-enq-name" required placeholder="e.g. Rohan Verma" style="width:100%; padding:0.55rem; border-radius:8px; border:1px solid var(--card-border); background:rgba(15,23,42,0.8); color:white;">
-                        </div>
-                        <div>
-                            <label style="font-size:0.85rem; color:var(--text-secondary);">Parent Name</label>
-                            <input type="text" id="tch-enq-parent" required placeholder="e.g. Sanjay Verma" style="width:100%; padding:0.55rem; border-radius:8px; border:1px solid var(--card-border); background:rgba(15,23,42,0.8); color:white;">
-                        </div>
-                        <div>
-                            <label style="font-size:0.85rem; color:var(--text-secondary);">Parent Email</label>
-                            <input type="email" id="tch-enq-email" required placeholder="sanjay.verma@example.com" style="width:100%; padding:0.55rem; border-radius:8px; border:1px solid var(--card-border); background:rgba(15,23,42,0.8); color:white;">
-                        </div>
-                        <div>
-                            <label style="font-size:0.85rem; color:var(--text-secondary);">Target Class</label>
-                            <select id="tch-enq-class" style="width:100%; padding:0.55rem; border-radius:8px; border:1px solid var(--card-border); background:rgba(15,23,42,0.8); color:white;">
-                                <option value="Class 1">Class 1</option>
-                                <option value="Class 2">Class 2</option>
-                                <option value="Class 3">Class 3</option>
-                                <option value="Class 4">Class 4</option>
-                                <option value="Class 5">Class 5</option>
-                                <option value="Class 6">Class 6</option>
-                                <option value="Class 7">Class 7</option>
-                                <option value="Class 8" selected>Class 8</option>
-                                <option value="Class 9">Class 9</option>
-                                <option value="Class 10">Class 10</option>
-                            </select>
-                        </div>
-                        <div style="grid-column: 1 / -1;">
-                            <button type="submit" class="btn-submit" style="width:auto; padding:0.65rem 1.5rem;">➕ Submit Enquiry for Admin Approval</button>
+                    <h4>Roster for <span id="staff-current-class-title">Class 10</span></h4>
+                    <form onsubmit="submitClassAttendance(event)">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Roll #</th>
+                                    <th>Student ID</th>
+                                    <th>Student Name</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staff-roster-tbody"></tbody>
+                        </table>
+                        <div style="margin-top:1.25rem;">
+                            <button type="submit" class="btn btn-primary">Submit Class Attendance</button>
                         </div>
                     </form>
                 </div>
 
-                <h4 style="font-family:'Outfit'; font-size:1.1rem; margin-bottom:0.75rem;">📥 Teacher Submitted Enquiries Status Log</h4>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Enquiry ID</th>
-                            <th>Student Name</th>
-                            <th>Parent Email</th>
-                            <th>Grade</th>
-                            <th>Requested By (Staff)</th>
-                            <th>Status</th>
-                            <th>Admin Approval Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="staff-enquiry-table">
-                        <tr id="staff-enq-row-101">
-                            <td><strong>ENQ-2026-101</strong></td>
-                            <td>Rohan Verma</td>
-                            <td>sanjay.verma@example.com</td>
-                            <td>Class 8</td>
-                            <td><span class="badge" style="background:rgba(59,130,246,0.2); color:#60A5FA; border:1px solid rgba(59,130,246,0.4);">👨‍🏫 Dr. Ramesh Kumar</span></td>
-                            <td><span class="badge badge-warning" id="staff-enq-badge-101">⏳ Pending Admin Approval</span></td>
-                            <td><span style="color:var(--text-secondary); font-size:0.85rem;" id="staff-enq-action-101">🔒 Admin Approval Required</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                <div id="staff-tab-admissions" class="staff-subtab" style="display:none;">
+                    <div style="background:#F8FAFC; padding:1.25rem; border-radius:8px; border:1px solid var(--card-border); margin-bottom:1.5rem;">
+                        <h4 style="font-size:1rem; font-weight:700; margin-bottom:0.75rem;">Submit New Admission Form</h4>
+                        <form onsubmit="handleTeacherEnquirySubmit(event)" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:0.85rem; align-items:end;">
+                            <div>
+                                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">SUBMITTING TEACHER</label>
+                                <select id="tch-enq-staffname" style="width:100%;">
+                                    <option value="Dr. Ramesh Kumar">Dr. Ramesh Kumar (Staff)</option>
+                                    <option value="Ms. Neha Sharma">Ms. Neha Sharma (Staff)</option>
+                                    <option value="Prof. Vikram Malhotra">Prof. Vikram Malhotra (Staff)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">STUDENT NAME</label>
+                                <input type="text" id="tch-enq-name" required placeholder="e.g. Rohan Verma" style="width:100%;">
+                            </div>
+                            <div>
+                                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">PARENT NAME</label>
+                                <input type="text" id="tch-enq-parent" required placeholder="e.g. Sanjay Verma" style="width:100%;">
+                            </div>
+                            <div>
+                                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">PARENT EMAIL</label>
+                                <input type="email" id="tch-enq-email" required placeholder="sanjay@example.com" style="width:100%;">
+                            </div>
+                            <div>
+                                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">TARGET CLASS</label>
+                                <select id="tch-enq-class" style="width:100%;">
+                                    <option value="Class 1">Class 1</option>
+                                    <option value="Class 5">Class 5</option>
+                                    <option value="Class 8" selected>Class 8</option>
+                                    <option value="Class 10">Class 10</option>
+                                </select>
+                            </div>
+                            <div style="grid-column: 1 / -1;">
+                                <button type="submit" class="btn btn-primary">+ Submit Enquiry for Admin Review</button>
+                            </div>
+                        </form>
+                    </div>
 
+                    <h4>Teacher Submitted Enquiries Log</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Enquiry ID</th>
+                                <th>Student Name</th>
+                                <th>Parent Email</th>
+                                <th>Grade</th>
+                                <th>Submitted By</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staff-enquiry-table">
+                            <tr id="staff-enq-row-101">
+                                <td><strong>ENQ-101</strong></td>
+                                <td>Rohan Verma</td>
+                                <td>sanjay.verma@example.com</td>
+                                <td>Class 8</td>
+                                <td>Dr. Ramesh Kumar</td>
+                                <td><span class="badge badge-warning" id="staff-enq-badge-101">Pending Admin Review</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <!-- PARENT PORTAL VIEW -->
-    <div id="portal-parent" class="portal-section">
-        <div class="content-panel">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:1.5rem;">
-                <h3 style="font-family:'Outfit'; font-size:1.4rem;">👨‍👩‍👧 Parent Portal: Child Profile (Aarav Sharma - Class 10)</h3>
-                <span class="badge badge-success" style="font-size:0.9rem; padding:0.4rem 1rem;">Registered Parent: Vikram Sharma</span>
-            </div>
-
-            <!-- Key Child Performance & Fee Metrics -->
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1.25rem; margin-bottom:1.75rem;">
-                <div class="metric-mini">
-                    <h4>Child Attendance Rate</h4>
-                    <div class="val" style="color:#34D399;" id="parent-portal-att">95.0%</div>
+        <!-- STUDENT PORTAL VIEW -->
+        <div id="portal-student" class="portal-section">
+            <div class="content-card">
+                <div class="card-header-bar">
+                    <h3>Student Portal: Aarav Sharma (Class 10)</h3>
                 </div>
-                <div class="metric-mini">
-                    <h4>Annual Fee Status</h4>
-                    <div class="val" id="parent-portal-fee-badge"><span class="badge badge-success" style="font-size:1.1rem; padding:0.4rem 0.8rem;">PAID</span></div>
+                <div id="student-timetable-area"></div>
+            </div>
+        </div>
+
+        <!-- PARENT PORTAL VIEW -->
+        <div id="portal-parent" class="portal-section">
+            <div class="content-card">
+                <div class="card-header-bar">
+                    <h3>Parent Portal: Child Profile (Aarav Sharma)</h3>
+                    <button class="btn btn-primary" onclick="payParentFeesOnline()" id="parent-pay-btn">Pay Outstanding Balance ($0.00)</button>
                 </div>
-                <div class="metric-mini">
-                    <h4>Outstanding Balance</h4>
-                    <div class="val" style="color:#F87171;" id="parent-portal-balance">$0.00</div>
-                </div>
-            </div>
-
-            <div class="tabs-nav" style="background:rgba(15,23,42,0.4); margin-bottom:1.25rem;">
-                <button class="tab-btn active" onclick="showParentSubTab('timetable')">📅 Class Timetable & Schedule</button>
-                <button class="tab-btn" onclick="showParentSubTab('fees')">💳 Fee Ledger & Payment Status</button>
-            </div>
-
-            <!-- Parent Sub-Tab 1: Timetable -->
-            <div id="parent-tab-timetable" class="parent-subtab">
-                <div id="parent-timetable-area"></div>
-            </div>
-
-            <!-- Parent Sub-Tab 2: Fee Ledger & Online Payment -->
-            <div id="parent-tab-fees" class="parent-subtab" style="display:none;">
-                <div style="background:rgba(15,23,42,0.6); padding:1.4rem; border-radius:18px; border:1px solid var(--card-border); margin-bottom:1.5rem;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-                        <div>
-                            <h4 style="font-family:'Outfit'; font-size:1.1rem; color:var(--accent-teal);">💳 2026 Academic Year Fee Summary</h4>
-                            <p style="color:var(--text-secondary); font-size:0.9rem;">View tuition, examination, and facility fee status for Aarav Sharma.</p>
-                        </div>
-                        <button class="btn-submit" onclick="payParentFeesOnline()" style="width:auto; padding:0.6rem 1.4rem;" id="parent-pay-btn">💳 Pay Outstanding Balance Online</button>
+                <div style="display:flex; gap:1.25rem; margin-bottom:1.5rem;">
+                    <div class="metric-mini" style="flex:1;">
+                        <h4>Attendance Rate</h4>
+                        <div class="val" style="color:var(--success-text);">95.0%</div>
+                    </div>
+                    <div class="metric-mini" style="flex:1;">
+                        <h4>Annual Fee Status</h4>
+                        <div class="val" id="parent-portal-fee-badge"><span class="badge badge-success">PAID</span></div>
                     </div>
                 </div>
 
                 <table>
                     <thead>
                         <tr>
-                            <th>Fee Item / Component</th>
+                            <th>Fee Component</th>
                             <th>Due Date</th>
-                            <th>Total Amount ($)</th>
-                            <th>Amount Paid ($)</th>
+                            <th>Amount ($)</th>
                             <th>Status</th>
                         </tr>
                     </thead>
-                    <tbody id="parent-fee-tbody">
+                    <tbody>
                         <tr>
-                            <td><strong>Term 1 Tuition & Academic Fee</strong></td>
+                            <td>Term 1 Tuition Fee</td>
                             <td>15 Jan 2026</td>
                             <td>$1,500.00</td>
-                            <td>$1,500.00</td>
-                            <td><span class="badge badge-success">✓ Paid</span></td>
+                            <td><span class="badge badge-success">Paid</span></td>
                         </tr>
                         <tr>
-                            <td><strong>Term 2 Tuition & Science Lab Fee</strong></td>
+                            <td>Term 2 Science Lab Fee</td>
                             <td>15 May 2026</td>
                             <td>$1,200.00</td>
-                            <td>$1,200.00</td>
-                            <td><span class="badge badge-success">✓ Paid</span></td>
+                            <td><span class="badge badge-success">Paid</span></td>
                         </tr>
-                        <tr id="fee-row-term3">
-                            <td><strong>Term 3 Tuition & Library Access</strong></td>
+                        <tr>
+                            <td>Term 3 Library & Exam Fee</td>
                             <td>15 Sep 2026</td>
                             <td>$1,000.00</td>
-                            <td><span id="fee-paid-term3">$1,000.00</span></td>
-                            <td><span class="badge badge-success" id="fee-badge-term3">✓ Paid</span></td>
+                            <td><span class="badge badge-success" id="fee-badge-term3">Paid</span></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-
         </div>
     </div>
 </div>
@@ -670,7 +662,7 @@
     const lastNames = ["Sharma", "Verma", "Patel", "Singh", "Gupta", "Rao", "Kumar", "Das", "Malhotra", "Nair"];
     const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-    // Deterministic Round-Robin Timetable Generation across 15 Teachers
+    // Timetable Generation
     for(let c = 1; c <= 10; c++) {
         const className = "Class " + c;
         for(let s = 1; s <= 20; s++) {
@@ -685,7 +677,6 @@
             });
         }
 
-        // Build 3 periods x 6 days deterministic round robin using 15 teachers
         const p1 = { period: "Period 1 (09:00 - 10:30 AM)" };
         const p2 = { period: "Period 2 (10:45 - 12:15 PM)" };
         const p3 = { period: "Period 3 (01:15 - 02:45 PM)" };
@@ -704,6 +695,8 @@
     }
 
     let currentSelectedClass = "Class 10";
+    let currentAdminStudentClass = "Class 10";
+    let activeDrawerEnqId = null;
 
     window.onload = function() {
         renderTeacherDirectory();
@@ -711,12 +704,39 @@
         renderAdminStudents("Class 10");
         renderTimetable("Class 10");
         document.getElementById('student-timetable-area').innerHTML = buildTimetableHTML("Class 10");
-        document.getElementById('parent-timetable-area').innerHTML = buildTimetableHTML("Class 10");
         loadStaffClassRoster("Class 10");
     };
 
-    let currentAdminStudentClass = "Class 10";
+    // DRAWER REVIEW MODAL HANDLERS
+    function openAdmissionDrawer(enqId, studentName, parentName, parentEmail, grade, staffName) {
+        activeDrawerEnqId = enqId;
+        document.getElementById('drawer-enq-id').innerText = 'ENQ-' + enqId;
+        document.getElementById('drawer-student-name').innerText = studentName;
+        document.getElementById('drawer-parent-name').innerText = parentName;
+        document.getElementById('drawer-parent-email').innerText = parentEmail;
+        document.getElementById('drawer-grade').innerText = grade;
+        document.getElementById('drawer-staff-name').innerText = staffName;
+        document.getElementById('admission-drawer').style.display = 'flex';
+    }
 
+    function closeDrawer() {
+        document.getElementById('admission-drawer').style.display = 'none';
+    }
+
+    function handleDrawerBackdropClick(event) {
+        if (event.target.id === 'admission-drawer') closeDrawer();
+    }
+
+    function confirmAdmissionFromDrawer() {
+        const sName = document.getElementById('drawer-student-name').innerText;
+        const grade = document.getElementById('drawer-grade').innerText;
+        const email = document.getElementById('drawer-parent-email').innerText;
+        
+        acceptAdmission(activeDrawerEnqId, sName, grade, email);
+        closeDrawer();
+    }
+
+    // TEACHER & STUDENT ACTIONS
     function renderTeacherDirectory() {
         const tbody = document.getElementById('teacher-directory-tbody');
         let html = '';
@@ -729,7 +749,7 @@
                     <td>Max 3 Periods / Day</td>
                     <td><span class="badge badge-success">Active Faculty</span></td>
                     <td>
-                        <button class="tab-btn" style="padding:0.3rem 0.8rem; font-size:0.8rem; background:var(--accent-teal);" onclick="editTeacher('${t.id}')">✏️ Edit</button>
+                        <button class="btn btn-secondary" style="padding:0.3rem 0.6rem; font-size:0.78rem;" onclick="editTeacher('${t.id}')">Edit</button>
                     </td>
                 </tr>
             `;
@@ -746,22 +766,19 @@
         const newId = "TCH-" + String(teachersList.length + 1).padStart(3, '0');
         teachersList.push({ id: newId, name: name, subject: subject });
         renderTeacherDirectory();
-        alert(`✅ Teacher added successfully!\n\nID: ${newId}\nName: ${name}\nSubject: ${subject}`);
+        alert(`✅ Teacher added successfully!\nID: ${newId}\nName: ${name}`);
     }
 
     function editTeacher(teacherId) {
         const teacher = teachersList.find(t => t.id === teacherId);
         if (!teacher) return;
-
         const newName = prompt(`Edit Teacher Name (${teacher.id}):`, teacher.name);
         if (newName === null) return;
-        const newSubject = prompt(`Edit Subject Specialization for ${newName}:`, teacher.subject);
+        const newSubject = prompt(`Edit Subject:`, teacher.subject);
         if (newSubject === null) return;
-
         teacher.name = newName;
         teacher.subject = newSubject;
         renderTeacherDirectory();
-        alert(`✅ Teacher ${teacherId} updated successfully!`);
     }
 
     function renderClassFilterButtons() {
@@ -797,7 +814,7 @@
                     <td><span class="badge badge-success">${s.attendance}</span></td>
                     <td><span class="badge ${badgeClass}">${s.feeStatus}</span></td>
                     <td>
-                        <button class="tab-btn" style="padding:0.3rem 0.8rem; font-size:0.8rem; background:var(--accent-teal);" onclick="editStudent('${s.id}')">✏️ Edit</button>
+                        <button class="btn btn-secondary" style="padding:0.3rem 0.6rem; font-size:0.78rem;" onclick="editStudent('${s.id}')">Edit</button>
                     </td>
                 </tr>
             `;
@@ -806,9 +823,9 @@
     }
 
     function addNewStudent() {
-        const name = prompt("Enter New Student Full Name:", "Karan Mehta");
+        const name = prompt("Enter Student Full Name:", "Karan Mehta");
         if (!name) return;
-        const className = prompt("Assign Class (Class 1 to Class 10):", currentAdminStudentClass || "Class 10");
+        const className = prompt("Assign Class (Class 1 to 10):", currentAdminStudentClass || "Class 10");
         if (!className) return;
         const parentEmail = prompt("Enter Parent Email:", `${name.toLowerCase().replace(/\s+/g, '.')}@example.com`);
         if (!parentEmail) return;
@@ -817,34 +834,27 @@
         const rollNo = database.students.filter(s => s.className === className).length + 1;
 
         database.students.push({
-            roll: rollNo,
-            id: generatedId,
-            name: name,
-            className: className,
-            parentEmail: parentEmail,
-            attendance: '95.0%',
-            feeStatus: 'Paid',
-            status: 'Present'
+            roll: rollNo, id: generatedId, name: name, className: className, parentEmail: parentEmail, attendance: '95.0%', feeStatus: 'Paid', status: 'Present'
         });
 
         renderAdminStudents(className);
         loadStaffClassRoster(className);
-        alert(`🎉 New Student Enrolled!\n\nID: ${generatedId}\nName: ${name}\nClass: ${className}\nRoll #: ${rollNo}`);
+        alert(`🎉 New Student Enrolled!\nID: ${generatedId}\nName: ${name}\nClass: ${className}`);
     }
 
     function editStudent(studentId) {
         const student = database.students.find(s => s.id === studentId);
         if (!student) return;
 
-        const newName = prompt(`Edit Student Name (${student.id}):`, student.name);
+        const newName = prompt(`Edit Name:`, student.name);
         if (newName === null) return;
-        const newRoll = prompt(`Edit Roll Number for ${newName}:`, student.roll);
+        const newRoll = prompt(`Edit Roll #:`, student.roll);
         if (newRoll === null) return;
-        const newClass = prompt(`Edit Class (Class 1 to Class 10):`, student.className);
+        const newClass = prompt(`Edit Class:`, student.className);
         if (newClass === null) return;
-        const newEmail = prompt(`Edit Parent Email:`, student.parentEmail);
+        const newEmail = prompt(`Edit Email:`, student.parentEmail);
         if (newEmail === null) return;
-        const newFee = prompt(`Edit Fee Status (Paid / Partial / Pending):`, student.feeStatus);
+        const newFee = prompt(`Edit Fee Status (Paid/Partial/Pending):`, student.feeStatus);
         if (newFee === null) return;
 
         student.name = newName;
@@ -855,38 +865,28 @@
 
         renderAdminStudents(currentAdminStudentClass);
         loadStaffClassRoster(currentAdminStudentClass);
-        alert(`✅ Student details for ${studentId} updated!`);
     }
 
     function editTimetableSlot() {
         const selectedClass = document.getElementById('timetable-class-select').value;
-        const day = prompt(`Select Day to Edit for ${selectedClass} (Mon / Tue / Wed / Thu / Fri / Sat):`, "Mon");
-        if (!day || !["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].includes(day)) {
-            alert("Invalid Day selected. Please specify Mon, Tue, Wed, Thu, Fri, or Sat.");
-            return;
-        }
+        const day = prompt(`Select Day (Mon/Tue/Wed/Thu/Fri/Sat):`, "Mon");
+        if (!day || !["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].includes(day)) return;
 
-        const periodIdx = prompt(`Select Period Number for ${selectedClass} on ${day} (1, 2, or 3):`, "1");
-        if (!periodIdx || !["1", "2", "3"].includes(periodIdx)) {
-            alert("Invalid Period Number. Choose 1, 2, or 3.");
-            return;
-        }
+        const periodIdx = prompt(`Select Period (1, 2, or 3):`, "1");
+        if (!periodIdx || !["1", "2", "3"].includes(periodIdx)) return;
 
         const currentSlot = database.timetables[selectedClass][parseInt(periodIdx) - 1][day];
-        const newAssignment = prompt(`Enter New Subject & Teacher for ${selectedClass} - ${day} (Period ${periodIdx}):`, currentSlot);
+        const newAssignment = prompt(`Enter New Subject & Teacher:`, currentSlot);
         if (!newAssignment) return;
 
         database.timetables[selectedClass][parseInt(periodIdx) - 1][day] = newAssignment;
-
         renderTimetable(selectedClass);
         document.getElementById('student-timetable-area').innerHTML = buildTimetableHTML(selectedClass);
-        document.getElementById('parent-timetable-area').innerHTML = buildTimetableHTML(selectedClass);
-        alert(`✅ Timetable slot updated!\n\n${selectedClass} | ${day} | Period ${periodIdx} -> ${newAssignment}`);
     }
 
     function buildTimetableHTML(className) {
         const rows = database.timetables[className] || [];
-        let html = `<table><thead><tr><th>Time Period</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th><th>Saturday</th></tr></thead><tbody>`;
+        let html = `<table><thead><tr><th>Period</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr></thead><tbody>`;
         rows.forEach(r => {
             html += `<tr><td><strong>${r.period}</strong></td><td>${r.Mon}</td><td>${r.Tue}</td><td>${r.Wed}</td><td>${r.Thu}</td><td>${r.Fri}</td><td>${r.Sat}</td></tr>`;
         });
@@ -898,22 +898,7 @@
         document.getElementById('timetable-render-area').innerHTML = buildTimetableHTML(className);
     }
 
-    function showStudentSubTab(subTabName) {
-        document.querySelectorAll('.student-subtab').forEach(el => el.style.display = 'none');
-        document.querySelectorAll('#portal-student .tab-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById('student-tab-' + subTabName).style.display = 'block';
-        event.target.classList.add('active');
-    }
-
-    function showStaffSubTab(subTabName) {
-        document.querySelectorAll('.staff-subtab').forEach(el => el.style.display = 'none');
-        document.querySelectorAll('#portal-staff .tab-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById('staff-tab-' + subTabName).style.display = 'block';
-        event.target.classList.add('active');
-    }
-
     let enquiryCounter = 102;
-
     function handleTeacherEnquirySubmit(event) {
         event.preventDefault();
         const staffName = document.getElementById('tch-enq-staffname').value;
@@ -923,40 +908,39 @@
         const targetClass = document.getElementById('tch-enq-class').value;
         const enqId = enquiryCounter++;
 
-        // Append to Admin Enquiry Table (With Requested By Staff Column)
         const adminTbody = document.getElementById('admin-enquiry-table');
         const adminRow = document.createElement('tr');
         adminRow.id = `enq-row-${enqId}`;
         adminRow.innerHTML = `
-            <td><strong>ENQ-2026-${enqId}</strong></td>
+            <td><strong>ENQ-${enqId}</strong></td>
             <td>${sName}</td>
-            <td>${pName}</td>
-            <td>${pEmail}</td>
             <td>${targetClass}</td>
-            <td><span class="badge" style="background:rgba(59,130,246,0.2); color:#60A5FA; border:1px solid rgba(59,130,246,0.4);">👨‍🏫 ${staffName}</span></td>
-            <td><span class="badge badge-warning" id="enq-status-${enqId}">Pending Approval</span></td>
+            <td>${staffName}</td>
+            <td><span class="badge badge-warning" id="enq-status-${enqId}">Pending</span></td>
             <td>
-                <button class="btn-accept" id="enq-btn-${enqId}" onclick="acceptAdmission('${enqId}', '${sName}', '${targetClass}', '${pEmail}')">✓ Accept & Confirm Admission</button>
+                <button class="btn btn-secondary" style="padding:0.35rem 0.75rem; font-size:0.8rem;" id="enq-btn-${enqId}" onclick="openAdmissionDrawer('${enqId}', '${sName}', '${pName}', '${pEmail}', '${targetClass}', '${staffName}')">Review</button>
             </td>
         `;
         adminTbody.appendChild(adminRow);
 
-        // Append to Staff Enquiry Table
         const staffTbody = document.getElementById('staff-enquiry-table');
         const staffRow = document.createElement('tr');
         staffRow.id = `staff-enq-row-${enqId}`;
         staffRow.innerHTML = `
-            <td><strong>ENQ-2026-${enqId}</strong></td>
+            <td><strong>ENQ-${enqId}</strong></td>
             <td>${sName}</td>
             <td>${pEmail}</td>
             <td>${targetClass}</td>
-            <td><span class="badge" style="background:rgba(59,130,246,0.2); color:#60A5FA; border:1px solid rgba(59,130,246,0.4);">👨‍🏫 ${staffName}</span></td>
-            <td><span class="badge badge-warning" id="staff-enq-badge-${enqId}">⏳ Pending Admin Approval</span></td>
-            <td><span style="color:var(--text-secondary); font-size:0.85rem;" id="staff-enq-action-${enqId}">🔒 Admin Approval Required</span></td>
+            <td>${staffName}</td>
+            <td><span class="badge badge-warning" id="staff-enq-badge-${enqId}">Pending Review</span></td>
         `;
         staffTbody.appendChild(staffRow);
 
-        alert(`✅ Admission enquiry for ${sName} (${targetClass}) submitted by ${staffName}!\n\nIt is now logged and pending approval in the Admin Portal.`);
+        // Update KPI counter
+        const pendingKpi = document.getElementById('kpi-pending-val');
+        if(pendingKpi) pendingKpi.innerText = parseInt(pendingKpi.innerText || 0) + 1;
+
+        alert(`✅ Enquiry logged for ${sName}! Pending admin review.`);
         document.getElementById('tch-enq-name').value = '';
         document.getElementById('tch-enq-parent').value = '';
         document.getElementById('tch-enq-email').value = '';
@@ -971,31 +955,27 @@
             parentEmail: parentEmail, attendance: '100.0%', feeStatus: 'Pending', status: 'Present'
         });
 
-        // Update Admin Table UI
         const adminBadge = document.getElementById(`enq-status-${enqId}`);
         if(adminBadge) {
             adminBadge.className = 'badge badge-success';
-            adminBadge.innerText = '✓ Approved & Enrolled';
+            adminBadge.innerText = 'Approved';
         }
         const adminBtn = document.getElementById(`enq-btn-${enqId}`);
         if(adminBtn) {
             adminBtn.disabled = true;
-            adminBtn.style.opacity = '0.5';
             adminBtn.innerText = 'Enrolled';
         }
 
-        // Update Staff Table UI
         const staffBadge = document.getElementById(`staff-enq-badge-${enqId}`);
         if(staffBadge) {
             staffBadge.className = 'badge badge-success';
-            staffBadge.innerText = '✓ Approved by Admin';
-        }
-        const staffAction = document.getElementById(`staff-enq-action-${enqId}`);
-        if(staffAction) {
-            staffAction.innerHTML = `<span style="color:#34D399; font-weight:bold;">Enrolled (${generatedId})</span>`;
+            staffBadge.innerText = 'Approved';
         }
 
-        alert(`🎉 ADMISSION CONFIRMED BY ADMIN!\n\nStudent: ${studentName}\nAssigned Class: ${className}\n\n🔐 Generated Credentials:\n• Student ID: ${generatedId}\n• Password: ${generatedPass}`);
+        const pendingKpi = document.getElementById('kpi-pending-val');
+        if(pendingKpi && parseInt(pendingKpi.innerText) > 0) pendingKpi.innerText = parseInt(pendingKpi.innerText) - 1;
+
+        alert(`🎉 ADMISSION CONFIRMED!\nStudent: ${studentName}\nClass: ${className}\n\n🔐 Credentials:\n• ID: ${generatedId}\n• Pass: ${generatedPass}`);
     }
 
     function loadStaffClassRoster(className) {
@@ -1022,11 +1002,11 @@
         tbody.innerHTML = html;
     }
 
-    function markAllPresent() { alert('All 20 students in ' + currentSelectedClass + ' marked Present!'); }
+    function markAllPresent() { alert('All students in ' + currentSelectedClass + ' marked Present!'); }
     function submitClassAttendance(event) { event.preventDefault(); alert('Attendance logged for ' + currentSelectedClass + '!'); }
 
     function selectRole(role) {
-        document.querySelectorAll('.role-option').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
         event.target.classList.add('active');
         document.getElementById('selected-role').value = role;
 
@@ -1037,7 +1017,7 @@
         else if(role === 'parent') emailField.value = 'vikram.sharma@example.com';
     }
 
-    // SPA ROUTER LOGIC FOR ADMIN, STAFF, STUDENT, PARENT
+    // SPA ROUTER ENGINE
     let currentRole = 'admin';
 
     function navigateToRoute(routeHash) {
@@ -1054,30 +1034,32 @@
             currentRole = role;
             document.getElementById('login-overlay').style.display = 'none';
 
-            // Switch Portal Section
             document.querySelectorAll('.portal-section').forEach(sec => sec.classList.remove('active'));
             const portalEl = document.getElementById('portal-' + role);
             if (portalEl) portalEl.classList.add('active');
 
-            // Update Top Route Nav Link Highlight
-            document.querySelectorAll('.route-link').forEach(link => link.classList.remove('active'));
-            const routeLink = document.getElementById('route-link-' + role);
-            if (routeLink) routeLink.classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(link => link.classList.remove('active'));
+            const navItem = document.getElementById('nav-item-' + (tab || role));
+            if (navItem) navItem.classList.add('active');
 
-            // Update User Role Badge & Email
             const emailMap = {
                 admin: 'admin@school.edu',
                 staff: 'ramesh.kumar@school.edu',
                 student: 'aarav.sharma@student.edu',
                 parent: 'vikram.sharma@example.com'
             };
-            document.getElementById('sub-header-role').innerText = `Logged in as ${role.toUpperCase()} (${emailMap[role] || ''})`;
+            const titleMap = {
+                admin: 'Dashboard Overview',
+                staff: 'Teacher & Staff Portal',
+                student: 'Student Academic Portal',
+                parent: 'Parent Dashboard & Fee Ledger'
+            };
+            document.getElementById('header-page-title').innerText = titleMap[role] || 'Dashboard';
+            document.getElementById('sub-header-role').innerText = emailMap[role] || '';
             document.getElementById('user-display-name').innerText = `Role: ${role.toUpperCase()}`;
 
-            // Handle Sub-Tab Routing if specified
             if (role === 'admin' && tab) showAdminTab(tab, false);
             else if (role === 'staff' && tab) showStaffSubTab(tab, false);
-            else if (role === 'student' && tab) showStudentSubTab(tab, false);
             else if (role === 'parent' && tab) showParentSubTab(tab, false);
         } else if (role === 'login') {
             document.getElementById('login-overlay').style.display = 'flex';
@@ -1089,50 +1071,35 @@
 
     function showAdminTab(tabName, updateHash = true) {
         document.querySelectorAll('.admin-tab').forEach(el => el.style.display = 'none');
-        document.querySelectorAll('#portal-admin .tab-btn').forEach(el => el.classList.remove('active'));
         const targetTab = document.getElementById('admin-' + tabName);
         if (targetTab) targetTab.style.display = 'block';
-
-        const btn = document.querySelector(`#portal-admin .tab-btn[onclick*="'${tabName}'"]`);
-        if (btn) btn.classList.add('active');
 
         if (updateHash) navigateToRoute(`#/admin/${tabName}`);
     }
 
     function showStaffSubTab(subTabName, updateHash = true) {
         document.querySelectorAll('.staff-subtab').forEach(el => el.style.display = 'none');
-        document.querySelectorAll('#portal-staff .tab-btn').forEach(el => el.classList.remove('active'));
         const targetTab = document.getElementById('staff-tab-' + subTabName);
         if (targetTab) targetTab.style.display = 'block';
-
-        const btn = document.querySelector(`#portal-staff .tab-btn[onclick*="'${subTabName}'"]`);
-        if (btn) btn.classList.add('active');
 
         if (updateHash) navigateToRoute(`#/staff/${subTabName}`);
     }
 
-    function showStudentSubTab(subTabName, updateHash = true) {
-        document.querySelectorAll('.student-subtab').forEach(el => el.style.display = 'none');
-        document.querySelectorAll('#portal-student .tab-btn').forEach(el => el.classList.remove('active'));
-        const targetTab = document.getElementById('student-tab-' + subTabName);
-        if (targetTab) targetTab.style.display = 'block';
-
-        const btn = document.querySelector(`#portal-student .tab-btn[onclick*="'${subTabName}'"]`);
-        if (btn) btn.classList.add('active');
-
-        if (updateHash) navigateToRoute(`#/student/${subTabName}`);
+    function showParentSubTab(subTabName, updateHash = true) {
+        if (updateHash) navigateToRoute(`#/parent/${subTabName}`);
     }
 
-    function showParentSubTab(subTabName, updateHash = true) {
-        document.querySelectorAll('.parent-subtab').forEach(el => el.style.display = 'none');
-        document.querySelectorAll('#portal-parent .tab-btn').forEach(el => el.classList.remove('active'));
-        const targetTab = document.getElementById('parent-tab-' + subTabName);
-        if (targetTab) targetTab.style.display = 'block';
+    function payParentFeesOnline() {
+        const student = database.students.find(s => s.name === "Aarav Sharma");
+        alert("💳 ONLINE PAYMENT GATEWAY\nProcessing Term 3 Payment...\n✅ Payment Successful! Transaction: TXN-2026-99482");
 
-        const btn = document.querySelector(`#portal-parent .tab-btn[onclick*="'${subTabName}'"]`);
-        if (btn) btn.classList.add('active');
-
-        if (updateHash) navigateToRoute(`#/parent/${subTabName}`);
+        if (student) student.feeStatus = 'Paid';
+        document.getElementById('parent-portal-fee-badge').innerHTML = '<span class="badge badge-success">PAID</span>';
+        document.getElementById('fee-badge-term3').className = 'badge badge-success';
+        document.getElementById('fee-badge-term3').innerText = 'Paid';
+        const payBtn = document.getElementById('parent-pay-btn');
+        if(payBtn) { payBtn.disabled = true; payBtn.innerText = 'All Fees Paid'; }
+        if(typeof renderAdminStudents === 'function') renderAdminStudents(currentAdminStudentClass || "Class 10");
     }
 
     function handleLogin(event) {
@@ -1141,9 +1108,7 @@
         navigateToRoute('#/' + role);
     }
 
-    function logout() {
-        navigateToRoute('#/login');
-    }
+    function logout() { navigateToRoute('#/login'); }
 </script>
 
 </body>
