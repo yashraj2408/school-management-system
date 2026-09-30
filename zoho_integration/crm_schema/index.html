@@ -180,8 +180,12 @@
 <!-- LOGIN MODAL OVERLAY -->
 <div id="login-overlay" class="login-overlay">
     <div class="login-card">
-        <h2 style="font-size:1.5rem; font-weight:800; color:var(--text-main); margin-bottom:0.25rem;">School Management ERP</h2>
-        <p style="font-size:0.85rem; color:var(--text-muted);">Select your portal role to authenticate</p>
+        <div style="display:inline-flex; align-items:center; gap:0.4rem; background:#EFF6FF; border:1px solid #BFDBFE; color:var(--primary); padding:0.3rem 0.75rem; border-radius:999px; font-size:0.75rem; font-weight:700; margin-bottom:1rem;">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            SHA-256 Auth & JWT Tokenization
+        </div>
+        <h2 style="font-size:1.4rem; font-weight:800; color:var(--text-main); margin-bottom:0.25rem;">School Management ERP</h2>
+        <p style="font-size:0.85rem; color:var(--text-muted);">Authenticate with hashed credentials & session token</p>
 
         <div class="role-grid">
             <button type="button" class="role-btn active" onclick="selectRole('admin')">Admin</button>
@@ -189,6 +193,8 @@
             <button type="button" class="role-btn" onclick="selectRole('student')">Student</button>
             <button type="button" class="role-btn" onclick="selectRole('parent')">Parent</button>
         </div>
+
+        <div id="login-error-msg" style="display:none; padding:0.65rem; background:#FEE2E2; border:1px solid #FCA5A5; color:#DC2626; border-radius:6px; font-size:0.8rem; margin-bottom:1rem; text-align:left; font-weight:600;"></div>
 
         <form onsubmit="handleLogin(event)">
             <input type="hidden" id="selected-role" value="admin">
@@ -199,11 +205,13 @@
             </div>
             
             <div style="display:flex; flex-direction:column; gap:0.4rem; text-align:left; margin-bottom:1.5rem;">
-                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">PASSWORD</label>
-                <input type="password" id="login-password" value="••••••••" required style="width:100%;">
+                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">PASSWORD (SHA-256 HASHED)</label>
+                <input type="password" id="login-password" value="Admin@2026" required style="width:100%;">
             </div>
 
-            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:0.75rem;">Login to ERP Portal</button>
+            <button type="submit" id="login-submit-btn" class="btn btn-primary" style="width:100%; justify-content:center; padding:0.75rem; font-weight:700;">
+                🔐 Authenticate & Issue Token
+            </button>
         </form>
     </div>
 </div>
@@ -1017,72 +1025,146 @@
     function markAllPresent() { alert('All students in ' + currentSelectedClass + ' marked Present!'); }
     function submitClassAttendance(event) { event.preventDefault(); alert('Attendance logged for ' + currentSelectedClass + '!'); }
 
+    // CRYPTOGRAPHIC AUTH & TOKENIZATION SYSTEM
+    const AUTH_SECRET = "SMS_ERP_SECRET_KEY_2026_PROD";
+
+    async function hashPassword(password) {
+        const msgUint8 = new TextEncoder().encode(password);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function generateAuthToken(user) {
+        const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
+        const payload = btoa(JSON.stringify({
+            sub: user.email,
+            role: user.role,
+            name: user.name,
+            iat: Math.floor(Date.now() / 1000),
+            exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60)
+        }));
+        const signature = await hashPassword(`${header}.${payload}.${AUTH_SECRET}`);
+        return `${header}.${payload}.${signature}`;
+    }
+
+    async function verifyAuthToken(token) {
+        if (!token) return null;
+        try {
+            const parts = token.split('.');
+            if (parts.length !== 3) return null;
+            const [header, payload, signature] = parts;
+            const expectedSig = await hashPassword(`${header}.${payload}.${AUTH_SECRET}`);
+            if (signature !== expectedSig) return null;
+            const decodedPayload = JSON.parse(atob(payload));
+            if (decodedPayload.exp < Math.floor(Date.now() / 1000)) return null;
+            return decodedPayload;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    const USER_DIRECTORY = [
+        { email: 'admin@school.edu', pass: 'Admin@2026', role: 'admin', name: 'Dr. Administrator' },
+        { email: 'ramesh.kumar@school.edu', pass: 'Staff@2026', role: 'staff', name: 'Dr. Ramesh Kumar' },
+        { email: 'aarav.sharma@student.edu', pass: 'Student@2026', role: 'student', name: 'Aarav Sharma' },
+        { email: 'vikram.sharma@example.com', pass: 'Parent@2026', role: 'parent', name: 'Sanjay Verma' }
+    ];
+
+    let HASHED_USER_DB = {};
+
+    async function initAuthDatabase() {
+        for (const u of USER_DIRECTORY) {
+            const h = await hashPassword(u.pass);
+            HASHED_USER_DB[u.email.toLowerCase()] = {
+                email: u.email,
+                passwordHash: h,
+                role: u.role,
+                name: u.name
+            };
+        }
+    }
+    initAuthDatabase();
+
     function selectRole(role) {
         document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
         event.target.classList.add('active');
         document.getElementById('selected-role').value = role;
 
         const emailField = document.getElementById('login-email');
-        if(role === 'admin') emailField.value = 'admin@school.edu';
-        else if(role === 'staff') emailField.value = 'ramesh.kumar@school.edu';
-        else if(role === 'student') emailField.value = 'aarav.sharma@student.edu';
-        else if(role === 'parent') emailField.value = 'vikram.sharma@example.com';
+        const passField = document.getElementById('login-password');
+        if(role === 'admin') { emailField.value = 'admin@school.edu'; passField.value = 'Admin@2026'; }
+        else if(role === 'staff') { emailField.value = 'ramesh.kumar@school.edu'; passField.value = 'Staff@2026'; }
+        else if(role === 'student') { emailField.value = 'aarav.sharma@student.edu'; passField.value = 'Student@2026'; }
+        else if(role === 'parent') { emailField.value = 'vikram.sharma@example.com'; passField.value = 'Parent@2026'; }
     }
 
-    // SPA ROUTER ENGINE
+    // SPA ROUTER ENGINE & AUTH GUARD
     let currentRole = 'admin';
 
     function navigateToRoute(routeHash) {
         window.location.hash = routeHash;
     }
 
-    function handleRoute() {
-        const hash = window.location.hash || '#/admin';
+    async function handleRoute() {
+        const hash = window.location.hash || '#/login';
         const parts = hash.replace(/^#\//, '').split('/');
-        const role = parts[0] || 'admin';
+        const requestedRole = parts[0] || 'login';
         const tab = parts[1] || null;
 
         const sidebarEl = document.querySelector('.sidebar');
         const appLayoutEl = document.querySelector('.app-layout');
+        const loginOverlayEl = document.getElementById('login-overlay');
 
-        if (['admin', 'staff', 'student', 'parent'].includes(role)) {
-            currentRole = role;
-            document.getElementById('login-overlay').style.display = 'none';
-            if (sidebarEl) sidebarEl.style.display = 'flex';
-            if (appLayoutEl) appLayoutEl.style.display = 'flex';
-
-            document.querySelectorAll('.portal-section').forEach(sec => sec.classList.remove('active'));
-            const portalEl = document.getElementById('portal-' + role);
-            if (portalEl) portalEl.classList.add('active');
-
-            document.querySelectorAll('.nav-item').forEach(link => link.classList.remove('active'));
-            const navItem = document.getElementById('nav-item-' + (tab || role));
-            if (navItem) navItem.classList.add('active');
-
-            const emailMap = {
-                admin: 'admin@school.edu',
-                staff: 'ramesh.kumar@school.edu',
-                student: 'aarav.sharma@student.edu',
-                parent: 'vikram.sharma@example.com'
-            };
-            const titleMap = {
-                admin: 'Dashboard Overview',
-                staff: 'Teacher & Staff Portal',
-                student: 'Student Academic Portal',
-                parent: 'Parent Dashboard & Fee Ledger'
-            };
-            document.getElementById('header-page-title').innerText = titleMap[role] || 'Dashboard';
-            document.getElementById('sub-header-role').innerText = emailMap[role] || '';
-            document.getElementById('user-display-name').innerText = `Role: ${role.toUpperCase()}`;
-
-            if (role === 'admin' && tab) showAdminTab(tab, false);
-            else if (role === 'staff' && tab) showStaffSubTab(tab, false);
-            else if (role === 'parent' && tab) showParentSubTab(tab, false);
-        } else if (role === 'login') {
-            document.getElementById('login-overlay').style.display = 'flex';
+        if (requestedRole === 'login') {
+            loginOverlayEl.style.display = 'flex';
             if (sidebarEl) sidebarEl.style.display = 'none';
             if (appLayoutEl) appLayoutEl.style.display = 'none';
+            return;
         }
+
+        // Validate JWT Auth Token
+        const token = sessionStorage.getItem('sms_auth_token');
+        const decodedUser = await verifyAuthToken(token);
+
+        if (!decodedUser) {
+            // Unauthenticated - Bounce to Login
+            loginOverlayEl.style.display = 'flex';
+            if (sidebarEl) sidebarEl.style.display = 'none';
+            if (appLayoutEl) appLayoutEl.style.display = 'none';
+            if (window.location.hash !== '#/login') {
+                window.location.hash = '#/login';
+            }
+            return;
+        }
+
+        // Authenticated Session
+        currentRole = decodedUser.role;
+        loginOverlayEl.style.display = 'none';
+        if (sidebarEl) sidebarEl.style.display = 'flex';
+        if (appLayoutEl) appLayoutEl.style.display = 'flex';
+
+        document.querySelectorAll('.portal-section').forEach(sec => sec.classList.remove('active'));
+        const portalEl = document.getElementById('portal-' + currentRole);
+        if (portalEl) portalEl.classList.add('active');
+
+        document.querySelectorAll('.nav-item').forEach(link => link.classList.remove('active'));
+        const navItem = document.getElementById('nav-item-' + (tab || currentRole));
+        if (navItem) navItem.classList.add('active');
+
+        const titleMap = {
+            admin: 'Dashboard Overview',
+            staff: 'Teacher & Staff Portal',
+            student: 'Student Academic Portal',
+            parent: 'Parent Dashboard & Fee Ledger'
+        };
+        document.getElementById('header-page-title').innerText = titleMap[currentRole] || 'Dashboard';
+        document.getElementById('sub-header-role').innerText = `${decodedUser.sub} (SHA-256 Verified Token)`;
+        document.getElementById('user-display-name').innerText = `Role: ${currentRole.toUpperCase()}`;
+
+        if (currentRole === 'admin' && tab) showAdminTab(tab, false);
+        else if (currentRole === 'staff' && tab) showStaffSubTab(tab, false);
+        else if (currentRole === 'parent' && tab) showParentSubTab(tab, false);
     }
 
     window.addEventListener('hashchange', handleRoute);
@@ -1121,13 +1203,45 @@
         if(typeof renderAdminStudents === 'function') renderAdminStudents(currentAdminStudentClass || "Class 10");
     }
 
-    function handleLogin(event) {
+    async function handleLogin(event) {
         event.preventDefault();
-        const role = document.getElementById('selected-role').value;
-        navigateToRoute('#/' + role);
+        const email = document.getElementById('login-email').value.trim().toLowerCase();
+        const rawPass = document.getElementById('login-password').value;
+        const errorEl = document.getElementById('login-error-msg');
+        errorEl.style.display = 'none';
+
+        if (Object.keys(HASHED_USER_DB).length === 0) {
+            await initAuthDatabase();
+        }
+
+        const user = HASHED_USER_DB[email];
+        if (!user) {
+            errorEl.innerText = "❌ Invalid email address or account not found.";
+            errorEl.style.display = "block";
+            return;
+        }
+
+        const inputHash = await hashPassword(rawPass);
+        if (inputHash !== user.passwordHash) {
+            errorEl.innerText = "❌ Incorrect password. SHA-256 hash check failed.";
+            errorEl.style.display = "block";
+            return;
+        }
+
+        // Issue JWT Session Token
+        const token = await generateAuthToken(user);
+        sessionStorage.setItem('sms_auth_token', token);
+        sessionStorage.setItem('sms_user_session', JSON.stringify({ email: user.email, role: user.role, name: user.name }));
+
+        // Redirect to authenticated portal
+        navigateToRoute('#/' + user.role);
     }
 
-    function logout() { navigateToRoute('#/login'); }
+    function logout() {
+        sessionStorage.removeItem('sms_auth_token');
+        sessionStorage.removeItem('sms_user_session');
+        navigateToRoute('#/login');
+    }
 </script>
 
 </body>
