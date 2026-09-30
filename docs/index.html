@@ -112,6 +112,137 @@
             font-weight: 700; cursor: pointer; transition: all 0.2s ease;
         }
 
+        /* MAGIC UI HERO VIDEO DIALOG COMPONENT STYLES */
+        .hero-video-container {
+            position: relative;
+            margin-bottom: 1.75rem;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 35px rgba(99, 102, 241, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95));
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .hero-video-container:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 45px rgba(99, 102, 241, 0.4);
+        }
+        .hero-video-card {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .hero-thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.75;
+            transition: transform 0.5s ease, opacity 0.5s ease;
+        }
+        .hero-video-card:hover .hero-thumbnail {
+            transform: scale(1.04);
+            opacity: 0.88;
+        }
+        .hero-video-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at center, rgba(15, 23, 42, 0.3) 0%, rgba(15, 23, 42, 0.8) 100%);
+            gap: 0.75rem;
+        }
+        .play-button-pulse {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-left: 3px;
+            box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.6);
+            animation: pulse-ring 2s infinite;
+            transition: transform 0.3s ease;
+        }
+        .hero-video-card:hover .play-button-pulse {
+            transform: scale(1.12);
+        }
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.6); }
+            70% { box-shadow: 0 0 0 20px rgba(99, 102, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+        .hero-video-badge {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 0.45rem 1.2rem;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-primary);
+            font-size: 0.88rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        .hero-modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(16px);
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .hero-modal-content {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            background: #0B0F19;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+        }
+        .hero-modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            z-index: 10;
+            background: rgba(15, 23, 42, 0.8);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+        }
+        .hero-modal-close:hover {
+            background: var(--accent-rose);
+        }
+        .hero-iframe-wrapper {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+        }
+        .hero-iframe-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
         .tabs-nav {
             display: flex; gap: 0.6rem; background: var(--card-bg); padding: 0.6rem;
             border-radius: 18px; border: 1px solid var(--card-border); margin-bottom: 1.75rem; overflow-x: auto;
@@ -222,6 +353,29 @@
             <button class="btn-logout" onclick="logout()">Logout</button>
         </div>
     </header>
+
+    <!-- MAGIC UI HERO VIDEO DIALOG SHOWCASE COMPONENT -->
+    <div class="hero-video-container">
+        <div class="hero-video-card" onclick="openHeroVideoModal('https://www.youtube.com/embed/qh3NGpYRG3I?autoplay=1')">
+            <img src="https://startup-template-sage.vercel.app/hero-dark.png" alt="SMS Portal Overview & Campus Tour Video" class="hero-thumbnail">
+            <div class="hero-video-overlay">
+                <div class="play-button-pulse">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                </div>
+                <div class="hero-video-badge">▶ Watch School Management System Overview & Campus Demo (Magic UI)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HERO VIDEO MODAL DIALOG -->
+    <div id="hero-video-modal" class="hero-modal-backdrop" onclick="closeHeroVideoModal(event)">
+        <div class="hero-modal-content">
+            <button class="hero-modal-close" onclick="closeHeroVideoModal(event)">✕</button>
+            <div class="hero-iframe-wrapper">
+                <iframe id="hero-video-iframe" src="" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
 
     <!-- ADMIN PORTAL VIEW -->
     <div id="portal-admin" class="portal-section active">
@@ -1036,6 +1190,26 @@
         }
         if(typeof renderAdminStudents === 'function') {
             renderAdminStudents(currentAdminStudentClass || "Class 10");
+        }
+    }
+
+    function openHeroVideoModal(videoSrc) {
+        const modal = document.getElementById('hero-video-modal');
+        const iframe = document.getElementById('hero-video-iframe');
+        if(iframe && modal) {
+            iframe.src = videoSrc;
+            modal.style.display = 'flex';
+        }
+    }
+
+    function closeHeroVideoModal(event) {
+        if (!event || event.target.id === 'hero-video-modal' || event.target.classList.contains('hero-modal-close')) {
+            const modal = document.getElementById('hero-video-modal');
+            const iframe = document.getElementById('hero-video-iframe');
+            if(iframe && modal) {
+                iframe.src = '';
+                modal.style.display = 'none';
+            }
         }
     }
 
