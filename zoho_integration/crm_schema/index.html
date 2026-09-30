@@ -297,9 +297,13 @@
         </a>
 
         <div class="nav-section-title">SYSTEM</div>
-        <a href="#/login" class="nav-item" onclick="logout()">
+        <a href="#/admin" class="nav-item" id="nav-item-settings" onclick="navigateToRoute('#/admin')">
             <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5l5 5-5 5M7 5l-5 5 5 5"></path></svg>
             Settings
+        </a>
+        <a href="#/login" class="nav-item" onclick="logout()" style="color: #dc2626;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            Logout
         </a>
     </div>
 </aside>
@@ -314,9 +318,14 @@
         <div class="header-right">
             <span class="role-pill" id="user-display-name">Role: ADMIN</span>
             <span style="font-size:0.85rem; color:var(--text-muted);" id="sub-header-role">admin@school.edu</span>
-            <div class="user-dropdown" onclick="logout()">
-                <div class="user-avatar">A</div>
-            </div>
+            <button onclick="navigateToRoute('#/login')" class="btn btn-secondary" style="padding:0.4rem 0.75rem; font-size:0.8rem; display:flex; align-items:center; gap:0.4rem;">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+                Switch Role / Login
+            </button>
+            <button onclick="logout()" class="btn" style="padding:0.4rem 0.75rem; font-size:0.8rem; background:#FEE2E2; color:#DC2626; border:1px solid #FCA5A5; display:flex; align-items:center; gap:0.4rem; cursor:pointer; font-weight:600;">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                Logout
+            </button>
         </div>
     </header>
 
