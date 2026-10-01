@@ -97,9 +97,7 @@ flowchart TD
 ### Module 2: Role-Specific Portal Specifications
 
 #### 👑 1. System Administrator Portal (`/#/admin`)
-* **Complete System Control**: Full read and write access across all 200 Students (Classes 1–10), 15 Faculty Teachers, Master Timetables, Admissions, Attendance Registers, Global Exam Gradebooks, and Global Fee Dues Audits.
-* **Master Timetable Allocation**: Re-assign subject teachers or change classroom locations across all 10 grades.
-* **Global Fee Dues Audit**: Track paid vs outstanding balances across all enrolled students.
+* **ALL ACCESS & Full System Control**: Complete read, create, edit, re-assign, and delete access across all 200 Students (Classes 1–10), 15 Faculty Teachers, Master Class Timetables, Admission Approvals & Drawers, Attendance Registers, Global Exam Gradebooks, and Global Fee Dues Audits.
 
 #### 👨‍🏫 2. Teacher & Staff Portal (`/#/staff`)
 * **Daily Attendance Register**: Select assigned class section, toggle Present/Absent per student, use **Mark All Present**, and log attendance.
@@ -108,10 +106,11 @@ flowchart TD
 * **Submit Admission Form**: Submit new student admission enquiries tagged with the `Requested By (Staff)` attribution badge for Admin drawer review.
 
 #### 🎓 3. Student Portal (`/#/student`)
-* **Attendance Status & %**: Displays live attendance badge (*96.5% Attendance*, *114 / 118 Days Present*).
-* **Class Timetable**: Displays weekly Mon–Sat 3-period class timetable with subject, teacher name, and room numbers.
-* **Exam Schedule & Dates**: Displays upcoming Mid-Term and Final examination dates, times, subjects, and assigned Exam Halls.
-* **Marks & Report Card**: Detailed subject marks table (Mathematics 95/100 A+, Physics 92/100 A, Chemistry 88/100 A, Computer Science 98/100 A+) with overall GPA (3.92 / 4.0) and teacher feedback.
+* **RESTRICTED PERSONAL VIEW ONLY**: Students have isolated read-only access displaying strictly their own 4 academic components:
+  1. 📅 **Class Timetable**: Weekly Mon–Sat 3-period class timetable with subject, teacher name, and room numbers.
+  2. 🎓 **Marks & Subject Report Card**: Detailed subject marks table (Mathematics 95/100 A+, Physics 92/100 A, Chemistry 88/100 A, Computer Science 98/100 A+) with overall GPA (3.92 / 4.0) and teacher feedback notes.
+  3. 📊 **Attendance Status & %**: Live attendance tracking badge (*96.5% Attendance*, *114 / 118 Days Present*).
+  4. 📝 **Upcoming Exams Timetable & Dates**: Upcoming Mid-Term and Final examination dates, times, subjects, and assigned Exam Halls.
 
 #### 👨‍👩‍👧 4. Parent Portal (`/#/parent`)
 * **Child Profile Overview**: Linked student profile (Aarav Sharma - Class 10) with attendance rate and academic average.
