@@ -113,10 +113,12 @@ flowchart TD
   4. 📝 **Upcoming Exams Timetable & Dates**: Upcoming Mid-Term and Final examination dates, times, subjects, and assigned Exam Halls.
 
 #### 👨‍👩‍👧 4. Parent Portal (`/#/parent`)
-* **Child Profile Overview**: Linked student profile (Aarav Sharma - Class 10) with attendance rate and academic average.
-* **Student Timetable**: View child's daily class schedule.
-* **Child Academic Performance & Exam Grades**: View subject marks, letter grades, and term performance cards.
-* **Fee Paid Status & Dues Breakdown**: Breakdown of Term 1 ($1,500 Paid), Term 2 ($1,200 Paid), Term 3 ($1,000 Total, $450 Outstanding Balance). Includes interactive **Pay Outstanding Balance ($450.00)** button generating transaction receipts (`TXN-2026-99482`) and updating status to `PAID`.
+* **RESTRICTED CHILD VIEW ONLY**: Parents have isolated access displaying strictly their child's 5 components:
+  1. 📅 **Student Timetable**: View child's (Aarav Sharma - Class 10) weekly period schedule.
+  2. 🎓 **Student Marks**: Subject-wise Mid-Term & Final examination marks & report card (Maths 95/100 A+, Physics 92/100 A, Chemistry 88/100 A, CS 98/100 A+).
+  3. 📝 **Upcoming Exams**: Dates, times, subjects, and exam halls for child's upcoming mid-term & final examinations.
+  4. 💰 **Fee Paid Status & Fee Dues Breakdown**: Term 1 ($1,500 Paid), Term 2 ($1,200 Paid), Term 3 ($1,000 Total, **$450 Outstanding Balance**). Includes interactive **Pay Outstanding Balance ($450.00)** button generating transaction receipts (`TXN-2026-99482`) and updating status to `PAID`.
+  5. 📊 **Attendance for Their Child**: Child's live attendance rate (*96.5% Attendance*, *114 / 118 Days Present*).
 
 ### Module 5: Attendance Register & Performance Monitor
 * **Daily Class Marking**: Teachers select their assigned grade, mark students Present/Absent using quick toggles or a **Mark All Present** action, and log the attendance record.
