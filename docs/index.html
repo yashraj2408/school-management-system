@@ -337,32 +337,31 @@
     </header>
 
     <div class="page-content">
-        <!-- OPERATIONAL KPI CARDS -->
-        <div class="kpi-grid">
-            <div class="kpi-compact">
-                <span class="kpi-label">Total Enrolled Students</span>
-                <span class="kpi-val">200</span>
-                <span class="kpi-change positive">Classes 1–10 (+12 this month)</span>
-            </div>
-            <div class="kpi-compact">
-                <span class="kpi-label">Faculty Strength</span>
-                <span class="kpi-val">15</span>
-                <span class="kpi-change positive">3 periods/day strict load cap</span>
-            </div>
-            <div class="kpi-compact">
-                <span class="kpi-label">Pending Admissions</span>
-                <span class="kpi-val" style="color:var(--warning-text);" id="kpi-pending-val">1</span>
-                <span class="kpi-change warning">Requires attention</span>
-            </div>
-            <div class="kpi-compact">
-                <span class="kpi-label">Attendance Today</span>
-                <span class="kpi-val" style="color:var(--success-text);">96.4%</span>
-                <span class="kpi-change positive">+2.4% from yesterday</span>
-            </div>
-        </div>
-
         <!-- ADMIN PORTAL VIEW -->
         <div id="portal-admin" class="portal-section active">
+            <!-- OPERATIONAL KPI CARDS FOR ADMIN -->
+            <div class="kpi-grid">
+                <div class="kpi-compact">
+                    <span class="kpi-label">Total Enrolled Students</span>
+                    <span class="kpi-val">200</span>
+                    <span class="kpi-change positive">Classes 1–10 (+12 this month)</span>
+                </div>
+                <div class="kpi-compact">
+                    <span class="kpi-label">Faculty Strength</span>
+                    <span class="kpi-val">15</span>
+                    <span class="kpi-change positive">3 periods/day strict load cap</span>
+                </div>
+                <div class="kpi-compact">
+                    <span class="kpi-label">Pending Admissions</span>
+                    <span class="kpi-val" style="color:var(--warning-text);" id="kpi-pending-val">1</span>
+                    <span class="kpi-change warning">Requires attention</span>
+                </div>
+                <div class="kpi-compact">
+                    <span class="kpi-label">Attendance Today</span>
+                    <span class="kpi-val" style="color:var(--success-text);">96.4%</span>
+                    <span class="kpi-change positive">+2.4% from yesterday</span>
+                </div>
+            </div>
             <!-- Sub-Tab 1: Admission Enquiries -->
             <div id="admin-leads" class="admin-tab active">
                 <div class="content-card">
@@ -1522,19 +1521,23 @@
             return;
         }
 
-        // Authenticated Session
+        // Authenticated Session & Strict Authorization Guard
+        if (requestedRole !== 'login' && requestedRole !== decodedUser.role && !requestedRole.startsWith(decodedUser.role)) {
+            window.location.hash = '#/' + decodedUser.role;
+            return;
+        }
+
         currentRole = decodedUser.role;
         loginOverlayEl.style.display = 'none';
         if (sidebarEl) sidebarEl.style.display = 'flex';
         if (appLayoutEl) appLayoutEl.style.display = 'flex';
 
+        renderSidebarForRole(currentRole);
+        renderTimetable("Class 10");
+
         document.querySelectorAll('.portal-section').forEach(sec => sec.classList.remove('active'));
         const portalEl = document.getElementById('portal-' + currentRole);
         if (portalEl) portalEl.classList.add('active');
-
-        document.querySelectorAll('.nav-item').forEach(link => link.classList.remove('active'));
-        const navItem = document.getElementById('nav-item-' + (tab || currentRole));
-        if (navItem) navItem.classList.add('active');
 
         const titleMap = {
             admin: 'Dashboard Overview',
@@ -1549,6 +1552,135 @@
         if (currentRole === 'admin' && tab) showAdminTab(tab, false);
         else if (currentRole === 'staff' && tab) showStaffSubTab(tab, false);
         else if (currentRole === 'parent' && tab) showParentSubTab(tab, false);
+    }
+
+    function renderSidebarForRole(role) {
+        const navContainer = document.querySelector('.sidebar-nav');
+        if (!navContainer) return;
+
+        if (role === 'admin') {
+            navContainer.innerHTML = `
+                <div class="nav-section-title">MAIN</div>
+                <a href="#/admin" class="nav-item active" id="nav-item-admin" onclick="navigateToRoute('#/admin')">
+                    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+                    Dashboard
+                </a>
+                <a href="#/admin/leads" class="nav-item" id="nav-item-leads" onclick="showAdminTab('leads')">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                    Admissions
+                </a>
+                <a href="#/admin/students" class="nav-item" id="nav-item-students" onclick="showAdminTab('students')">
+                    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                    Students
+                </a>
+                <a href="#/admin/teachers" class="nav-item" id="nav-item-teachers" onclick="showAdminTab('teachers')">
+                    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    Faculty
+                </a>
+                <a href="#/admin/timetables" class="nav-item" id="nav-item-timetables" onclick="showAdminTab('timetables')">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    Timetable
+                </a>
+
+                <div class="nav-section-title">MANAGEMENT</div>
+                <a href="#/admin/students" class="nav-item" id="nav-item-classes" onclick="showAdminTab('students')">
+                    <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    Classes
+                </a>
+
+                <div class="nav-section-title">SYSTEM</div>
+                <a href="#/admin" class="nav-item" id="nav-item-settings" onclick="navigateToRoute('#/admin')">
+                    <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5l5 5-5 5M7 5l-5 5 5 5"></path></svg>
+                    Settings
+                </a>
+                <a href="#/login" class="nav-item" onclick="logout()" style="color: #dc2626;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    Logout
+                </a>
+            `;
+        } else if (role === 'staff') {
+            navContainer.innerHTML = `
+                <div class="nav-section-title">TEACHER PORTAL</div>
+                <a href="#/staff" class="nav-item active" id="nav-item-staff-attendance" onclick="showStaffSubTab('attendance')">
+                    <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                    Mark Attendance
+                </a>
+                <a href="#/staff/timetable" class="nav-item" id="nav-item-staff-timetable" onclick="showStaffSubTab('timetable')">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    My Timetable
+                </a>
+                <a href="#/staff/exams" class="nav-item" id="nav-item-staff-exams" onclick="showStaffSubTab('exams')">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path></svg>
+                    Exam Section & Marks
+                </a>
+                <a href="#/staff/admissions" class="nav-item" id="nav-item-staff-admissions" onclick="showStaffSubTab('admissions')">
+                    <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="17" y1="11" x2="23" y2="11"></line></svg>
+                    Submit Admission
+                </a>
+
+                <div class="nav-section-title">SYSTEM</div>
+                <a href="#/login" class="nav-item" onclick="logout()" style="color: #dc2626;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    Logout
+                </a>
+            `;
+        } else if (role === 'student') {
+            navContainer.innerHTML = `
+                <div class="nav-section-title">STUDENT ACADEMIC PORTAL</div>
+                <a href="#/student" class="nav-item active">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    Class Timetable
+                </a>
+                <a href="#/student" class="nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    Marks & Report Card
+                </a>
+                <a href="#/student" class="nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path></svg>
+                    Upcoming Exams
+                </a>
+                <a href="#/student" class="nav-item">
+                    <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                    Attendance Status
+                </a>
+
+                <div class="nav-section-title">SYSTEM</div>
+                <a href="#/login" class="nav-item" onclick="logout()" style="color: #dc2626;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    Logout
+                </a>
+            `;
+        } else if (role === 'parent') {
+            navContainer.innerHTML = `
+                <div class="nav-section-title">PARENT PORTAL</div>
+                <a href="#/parent" class="nav-item active">
+                    <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                    Fee Dues & Status
+                </a>
+                <a href="#/parent" class="nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    Child Marks & Grades
+                </a>
+                <a href="#/parent" class="nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path></svg>
+                    Upcoming Exams
+                </a>
+                <a href="#/parent" class="nav-item">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    Child Timetable
+                </a>
+                <a href="#/parent" class="nav-item">
+                    <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                    Child Attendance Rate
+                </a>
+
+                <div class="nav-section-title">SYSTEM</div>
+                <a href="#/login" class="nav-item" onclick="logout()" style="color: #dc2626;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    Logout
+                </a>
+            `;
+        }
     }
 
     window.addEventListener('hashchange', handleRoute);
