@@ -77,11 +77,12 @@ flowchart TD
 | **Full ERP System Settings** | ✅ Full Access | ❌ Denied | ❌ Denied | ❌ Denied |
 | **All Student Records (Classes 1–10)** | ✅ Read & Edit All 200 | 👁️ View Assigned | 👁️ View Self Only | 👁️ View Child Only |
 | **Faculty Roster & Workload Monitor** | ✅ Read & Edit 15 | 👁️ View Self Schedule | ❌ Denied | ❌ Denied |
-| **Master Timetable Allocation** | ✅ Re-assign & Edit | 👁️ View Personal | 👁️ View Class Schedule | ❌ Denied |
-| **Admission Application Approval** | ✅ Accept / Reject | 📝 Submit Application | ❌ Denied | ❌ Denied |
-| **Admission Staff Attribution Badge** | 👁️ View Staff Name | 📝 Tagged as Requestor | ❌ Denied | ❌ Denied |
-| **Daily Class Attendance Logging** | ✅ Overview & Audit | 📝 Submit Attendance | 👁️ View Self % | 👁️ View Child % |
-| **Parent Fee Ledger & Online Payment** | 👁️ Audit Fee Status | ❌ Denied | ❌ Denied | 💳 Pay Online & View |
+| **Class & Personal Timetables** | ✅ Re-assign & Edit | 👁️ View Personal (3/day) | 👁️ View Class Schedule | 👁️ View Child Timetable |
+| **Exam Section & Marks Entry** | ✅ Global Gradebook | 📝 Enter & Edit Marks | 👁️ View Report Card | 👁️ View Child Grades |
+| **Exam Schedule & Dates** | ✅ Manage Schedules | 👁️ Audit Exam Dates | 👁️ View Hall & Dates | 👁️ View Exam Dates |
+| **Admission Application Approval** | ✅ Accept / Reject | 📝 Submit Lead Form | ❌ Denied | ❌ Denied |
+| **Daily Class Attendance Register** | ✅ Audit All Classes | 📝 Log Class Attendance | 👁️ View Self % | 👁️ View Child % |
+| **Parent Fee Ledger & Online Payment** | ✅ Global Dues Audit | ❌ Denied | ❌ Denied | 💳 View Dues & Pay Online |
 
 ---
 
@@ -93,20 +94,30 @@ flowchart TD
 * **Route Guards**: On hash navigation (`/#/admin`, `/#/staff`, etc.), `handleRoute()` verifies the token signature and expiration. Unauthenticated requests are intercepted and bounced to the standalone full-screen Login Screen (`/#/login`).
 * **Standalone Full-Screen Login Page**: On logout (`logout()`), the main ERP layout container (`.sidebar` and `.app-layout`) is set to `display: none`, displaying only the dedicated full-screen login card with role selection buttons.
 
-### Module 2: Admission & Lead Intake Workflow
-* **Public & Staff Enquiries**: Supports admissions submitted through `Webform_Config.html` or internally by teachers via `/#/staff/admissions`. Staff submissions are tagged with `Requested By (Staff)` (e.g. *Dr. Ramesh Kumar*).
-* **Compact Admissions Table**: Displays pending leads with columns: `ID`, `Student Name`, `Grade`, `Requested By`, `Status`, and `Action`.
-* **Sliding Admission Review Drawer**: Clicking **Review** slides out a right drawer modal with complete applicant details, parent info, and action buttons (`Cancel / Reject` and `✓ Accept & Confirm Admission`). Accepting auto-enrolls the student into the class roster with a generated Student ID (`STD-2026-XXXX`).
+### Module 2: Role-Specific Portal Specifications
 
-### Module 3: Student & Class Roster Engine
-* **Complete Academic Scope**: Covers **Classes 1 to 10** with 20 enrolled students per grade (200 total enrolled students).
-* **Admin Management**: Admins can filter by class, search by name, edit student details (Roll Number, Parent Contact, Section), and add new students to the roster.
+#### 👑 1. System Administrator Portal (`/#/admin`)
+* **Complete System Control**: Full read and write access across all 200 Students (Classes 1–10), 15 Faculty Teachers, Master Timetables, Admissions, Attendance Registers, Global Exam Gradebooks, and Global Fee Dues Audits.
+* **Master Timetable Allocation**: Re-assign subject teachers or change classroom locations across all 10 grades.
+* **Global Fee Dues Audit**: Track paid vs outstanding balances across all enrolled students.
 
-### Module 4: 15-Teacher Faculty & Round-Robin Timetable Engine
-* **Faculty Roster**: 15 specialized subject teachers (Mathematics, Physics, Chemistry, Computer Science, English, Social Studies, Biology, Hindi, Physical Education).
-* **Workload Enforcement**: Capped at a maximum load of **3 periods per teacher per day** to prevent burnout.
-* **6-Day Rotation Schedule**: Calculates deterministic timetable slots across Monday through Saturday (3 periods per day: 09:00 AM, 10:00 AM, 11:15 AM).
-* **Admin Slot Re-assignment**: Admins can edit any slot to re-assign subject teachers or change classroom locations.
+#### 👨‍🏫 2. Teacher & Staff Portal (`/#/staff`)
+* **Daily Attendance Register**: Select assigned class section, toggle Present/Absent per student, use **Mark All Present**, and log attendance.
+* **Teacher Timetable**: Displays personal 3-period daily schedule (Mathematics: Classes 8, 9, 10 in Rooms 204, 301, 402) enforcing the **max 3 periods/day** cap.
+* **Exam Section (Gradebook)**: Enter Mid-Term and Final Exam Marks for assigned students with automatic letter grade calculation (A+, A, B, C, F) and gradebook record logging.
+* **Submit Admission Form**: Submit new student admission enquiries tagged with the `Requested By (Staff)` attribution badge for Admin drawer review.
+
+#### 🎓 3. Student Portal (`/#/student`)
+* **Attendance Status & %**: Displays live attendance badge (*96.5% Attendance*, *114 / 118 Days Present*).
+* **Class Timetable**: Displays weekly Mon–Sat 3-period class timetable with subject, teacher name, and room numbers.
+* **Exam Schedule & Dates**: Displays upcoming Mid-Term and Final examination dates, times, subjects, and assigned Exam Halls.
+* **Marks & Report Card**: Detailed subject marks table (Mathematics 95/100 A+, Physics 92/100 A, Chemistry 88/100 A, Computer Science 98/100 A+) with overall GPA (3.92 / 4.0) and teacher feedback.
+
+#### 👨‍👩‍👧 4. Parent Portal (`/#/parent`)
+* **Child Profile Overview**: Linked student profile (Aarav Sharma - Class 10) with attendance rate and academic average.
+* **Student Timetable**: View child's daily class schedule.
+* **Child Academic Performance & Exam Grades**: View subject marks, letter grades, and term performance cards.
+* **Fee Paid Status & Dues Breakdown**: Breakdown of Term 1 ($1,500 Paid), Term 2 ($1,200 Paid), Term 3 ($1,000 Total, $450 Outstanding Balance). Includes interactive **Pay Outstanding Balance ($450.00)** button generating transaction receipts (`TXN-2026-99482`) and updating status to `PAID`.
 
 ### Module 5: Attendance Register & Performance Monitor
 * **Daily Class Marking**: Teachers select their assigned grade, mark students Present/Absent using quick toggles or a **Mark All Present** action, and log the attendance record.

@@ -478,17 +478,20 @@
         <div id="portal-staff" class="portal-section">
             <div class="content-card">
                 <div class="card-header-bar">
-                    <h3>Staff Attendance & Application Submission</h3>
-                    <div style="display:flex; gap:0.5rem;">
+                    <h3>Teacher & Staff Portal (Dr. Ramesh Kumar)</h3>
+                    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
                         <button class="btn btn-primary" onclick="showStaffSubTab('attendance')">Mark Attendance</button>
+                        <button class="btn btn-secondary" onclick="showStaffSubTab('timetable')">My Timetable</button>
+                        <button class="btn btn-secondary" onclick="showStaffSubTab('exams')">Exam Section & Marks</button>
                         <button class="btn btn-secondary" onclick="showStaffSubTab('admissions')">Submit Admission</button>
                     </div>
                 </div>
 
+                <!-- Staff Sub-Tab 1: Attendance -->
                 <div id="staff-tab-attendance" class="staff-subtab">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; background:#F8FAFC; padding:1rem; border-radius:8px; border:1px solid var(--card-border);">
                         <div>
-                            <label style="font-weight:700; margin-right:0.5rem;">Select Class:</label>
+                            <label style="font-weight:700; margin-right:0.5rem;">Select Class Section:</label>
                             <select id="staff-class-dropdown" onchange="loadStaffClassRoster(this.value)">
                                 <option value="Class 1">Class 1</option>
                                 <option value="Class 2">Class 2</option>
@@ -505,7 +508,7 @@
                         <button type="button" class="btn btn-secondary" onclick="markAllPresent()">Mark All Present</button>
                     </div>
 
-                    <h4>Roster for <span id="staff-current-class-title">Class 10</span></h4>
+                    <h4>Daily Attendance Register for <span id="staff-current-class-title">Class 10</span></h4>
                     <form onsubmit="submitClassAttendance(event)">
                         <table>
                             <thead>
@@ -513,17 +516,139 @@
                                     <th>Roll #</th>
                                     <th>Student ID</th>
                                     <th>Student Name</th>
-                                    <th>Status</th>
+                                    <th>Attendance Status</th>
                                 </tr>
                             </thead>
                             <tbody id="staff-roster-tbody"></tbody>
                         </table>
                         <div style="margin-top:1.25rem;">
-                            <button type="submit" class="btn btn-primary">Submit Class Attendance</button>
+                            <button type="submit" class="btn btn-primary">Save & Submit Attendance Register</button>
                         </div>
                     </form>
                 </div>
 
+                <!-- Staff Sub-Tab 2: My Timetable -->
+                <div id="staff-tab-timetable" class="staff-subtab" style="display:none;">
+                    <div style="background:#F8FAFC; padding:1rem; border-radius:8px; border:1px solid var(--card-border); margin-bottom:1.25rem;">
+                        <h4 style="font-size:0.95rem; font-weight:700; color:var(--text-main);">👨‍🏫 Teacher Daily Schedule (Max 3 Periods/Day Workload Capped)</h4>
+                        <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem;">Assigned Subjects: Mathematics (Classes 8, 9, 10)</p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Period / Time</th>
+                                <th>Monday</th>
+                                <th>Tuesday</th>
+                                <th>Wednesday</th>
+                                <th>Thursday</th>
+                                <th>Friday</th>
+                                <th>Saturday</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>P1 (09:00 - 10:00)</strong></td>
+                                <td>Class 10 (Maths - Room 402)</td>
+                                <td>Class 9 (Maths - Room 301)</td>
+                                <td>Class 8 (Maths - Room 204)</td>
+                                <td>Class 10 (Maths - Room 402)</td>
+                                <td>Class 9 (Maths - Room 301)</td>
+                                <td>Class 8 (Maths - Room 204)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>P2 (10:00 - 11:00)</strong></td>
+                                <td>Class 9 (Maths - Room 301)</td>
+                                <td>Class 8 (Maths - Room 204)</td>
+                                <td>Class 10 (Maths - Room 402)</td>
+                                <td>Class 9 (Maths - Room 301)</td>
+                                <td>Class 8 (Maths - Room 204)</td>
+                                <td>Class 10 (Maths - Room 402)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>P3 (11:15 - 12:15)</strong></td>
+                                <td>Class 8 (Maths - Room 204)</td>
+                                <td>Class 10 (Maths - Room 402)</td>
+                                <td>Class 9 (Maths - Room 301)</td>
+                                <td>Class 8 (Maths - Room 204)</td>
+                                <td>Class 10 (Maths - Room 402)</td>
+                                <td>Class 9 (Maths - Room 301)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Staff Sub-Tab 3: Exam Section & Marks -->
+                <div id="staff-tab-exams" class="staff-subtab" style="display:none;">
+                    <div style="background:#F8FAFC; padding:1.25rem; border-radius:8px; border:1px solid var(--card-border); margin-bottom:1.5rem;">
+                        <h4 style="font-size:1rem; font-weight:700; margin-bottom:0.75rem;">📝 Exam Marks Entry Form</h4>
+                        <form onsubmit="handleStaffExamMarksSubmit(event)" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:0.85rem; align-items:end;">
+                            <div>
+                                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">SELECT CLASS</label>
+                                <select id="exam-entry-class" style="width:100%;">
+                                    <option value="Class 10" selected>Class 10</option>
+                                    <option value="Class 9">Class 9</option>
+                                    <option value="Class 8">Class 8</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">STUDENT NAME</label>
+                                <input type="text" id="exam-entry-student" required value="Aarav Sharma" style="width:100%;">
+                            </div>
+                            <div>
+                                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">SUBJECT</label>
+                                <input type="text" id="exam-entry-subject" required value="Mathematics" style="width:100%;">
+                            </div>
+                            <div>
+                                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">MID-TERM MARKS (/100)</label>
+                                <input type="number" id="exam-entry-mid" required min="0" max="100" value="95" style="width:100%;">
+                            </div>
+                            <div>
+                                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">FINAL MARKS (/100)</label>
+                                <input type="number" id="exam-entry-final" required min="0" max="100" value="96" style="width:100%;">
+                            </div>
+                            <div style="grid-column: 1 / -1;">
+                                <button type="submit" class="btn btn-primary">Save & Record Exam Marks</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <h4>Recorded Class Gradebook Log</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Student Name</th>
+                                <th>Class</th>
+                                <th>Subject</th>
+                                <th>Mid-Term</th>
+                                <th>Final Marks</th>
+                                <th>Overall Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staff-gradebook-tbody">
+                            <tr>
+                                <td>STD-2026-1001</td>
+                                <td>Aarav Sharma</td>
+                                <td>Class 10</td>
+                                <td>Mathematics</td>
+                                <td>95 / 100</td>
+                                <td>96 / 100</td>
+                                <td><span class="badge badge-success">A+ (95.5%)</span></td>
+                            </tr>
+                            <tr>
+                                <td>STD-2026-1002</td>
+                                <td>Ananya Patel</td>
+                                <td>Class 10</td>
+                                <td>Mathematics</td>
+                                <td>91 / 100</td>
+                                <td>93 / 100</td>
+                                <td><span class="badge badge-success">A (92.0%)</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Staff Sub-Tab 4: Submit Admission -->
                 <div id="staff-tab-admissions" class="staff-subtab" style="display:none;">
                     <div style="background:#F8FAFC; padding:1.25rem; border-radius:8px; border:1px solid var(--card-border); margin-bottom:1.5rem;">
                         <h4 style="font-size:1rem; font-weight:700; margin-bottom:0.75rem;">Submit New Admission Form</h4>
@@ -594,9 +719,120 @@
         <div id="portal-student" class="portal-section">
             <div class="content-card">
                 <div class="card-header-bar">
-                    <h3>Student Portal: Aarav Sharma (Class 10)</h3>
+                    <div>
+                        <h3>Student Academic Portal: Aarav Sharma (Class 10)</h3>
+                        <p style="font-size:0.85rem; color:var(--text-muted);">Student ID: STD-2026-1001 | Roll #1</p>
+                    </div>
                 </div>
-                <div id="student-timetable-area"></div>
+
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+                    <div style="background:#EFF6FF; border:1px solid #BFDBFE; padding:1.25rem; border-radius:10px;">
+                        <span style="font-size:0.75rem; font-weight:700; color:var(--primary); text-transform:uppercase;">Overall Attendance</span>
+                        <div style="font-size:1.6rem; font-weight:800; color:var(--primary); margin-top:0.25rem;">96.5%</div>
+                        <span style="font-size:0.8rem; color:var(--text-muted);">114 / 118 Days Present</span>
+                    </div>
+                    <div style="background:#F0FDF4; border:1px solid #BBF7D0; padding:1.25rem; border-radius:10px;">
+                        <span style="font-size:0.75rem; font-weight:700; color:var(--success-text); text-transform:uppercase;">Academic GPA</span>
+                        <div style="font-size:1.6rem; font-weight:800; color:var(--success-text); margin-top:0.25rem;">3.92 / 4.0</div>
+                        <span style="font-size:0.8rem; color:var(--text-muted);">Grade: A+ (94.6% Overall)</span>
+                    </div>
+                </div>
+
+                <!-- Student Section 1: Timetable -->
+                <div style="margin-bottom:2rem;">
+                    <h4 style="font-size:1rem; font-weight:700; margin-bottom:0.75rem;">📅 My Weekly Class Timetable (Class 10)</h4>
+                    <div id="student-timetable-area"></div>
+                </div>
+
+                <!-- Student Section 2: Exam Schedule & Dates -->
+                <div style="margin-bottom:2rem;">
+                    <h4 style="font-size:1rem; font-weight:700; margin-bottom:0.75rem;">📝 Upcoming Exam Schedule & Dates</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Subject</th>
+                                <th>Exam Type</th>
+                                <th>Exam Hall</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>15 Oct 2026</td>
+                                <td>09:00 AM - 11:30 AM</td>
+                                <td>Mathematics</td>
+                                <td>Mid-Term Written</td>
+                                <td>Exam Hall #402</td>
+                            </tr>
+                            <tr>
+                                <td>17 Oct 2026</td>
+                                <td>09:00 AM - 11:30 AM</td>
+                                <td>Physics</td>
+                                <td>Mid-Term Practical & Theory</td>
+                                <td>Science Lab #2</td>
+                            </tr>
+                            <tr>
+                                <td>19 Oct 2026</td>
+                                <td>09:00 AM - 11:30 AM</td>
+                                <td>Computer Science</td>
+                                <td>Mid-Term Practical</td>
+                                <td>Computer Lab #1</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Student Section 3: Subject Marks & Report Card -->
+                <div>
+                    <h4 style="font-size:1rem; font-weight:700; margin-bottom:0.75rem;">🎓 Subject Marks & Report Card</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Teacher Name</th>
+                                <th>Mid-Term Marks</th>
+                                <th>Final Marks</th>
+                                <th>Grade</th>
+                                <th>Teacher Feedback</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Mathematics</td>
+                                <td>Dr. Ramesh Kumar</td>
+                                <td>95 / 100</td>
+                                <td>96 / 100</td>
+                                <td><span class="badge badge-success">A+</span></td>
+                                <td>Exceptional problem solving skills</td>
+                            </tr>
+                            <tr>
+                                <td>Physics</td>
+                                <td>Prof. Vikram Malhotra</td>
+                                <td>92 / 100</td>
+                                <td>93 / 100</td>
+                                <td><span class="badge badge-success">A</span></td>
+                                <td>Strong analytical and practical skills</td>
+                            </tr>
+                            <tr>
+                                <td>Chemistry</td>
+                                <td>Dr. Sneha Paul</td>
+                                <td>88 / 100</td>
+                                <td>90 / 100</td>
+                                <td><span class="badge badge-success">A</span></td>
+                                <td>Good lab performance</td>
+                            </tr>
+                            <tr>
+                                <td>Computer Science</td>
+                                <td>Ms. Neha Sharma</td>
+                                <td>98 / 100</td>
+                                <td>99 / 100</td>
+                                <td><span class="badge badge-success">A+</span></td>
+                                <td>Outstanding coding aptitude</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -604,50 +840,124 @@
         <div id="portal-parent" class="portal-section">
             <div class="content-card">
                 <div class="card-header-bar">
-                    <h3>Parent Portal: Child Profile (Aarav Sharma)</h3>
-                    <button class="btn btn-primary" onclick="payParentFeesOnline()" id="parent-pay-btn">Pay Outstanding Balance ($0.00)</button>
+                    <div>
+                        <h3>Parent Portal: Child Profile (Aarav Sharma)</h3>
+                        <p style="font-size:0.85rem; color:var(--text-muted);">Parent: Sanjay Verma / Vikram Sharma (Class 10)</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="payParentFeesOnline()" id="parent-pay-btn">Pay Outstanding Balance ($450.00)</button>
                 </div>
+
                 <div style="display:flex; gap:1.25rem; margin-bottom:1.5rem;">
                     <div class="metric-mini" style="flex:1;">
                         <h4>Attendance Rate</h4>
-                        <div class="val" style="color:var(--success-text);">95.0%</div>
+                        <div class="val" style="color:var(--success-text);">96.5%</div>
                     </div>
                     <div class="metric-mini" style="flex:1;">
                         <h4>Annual Fee Status</h4>
-                        <div class="val" id="parent-portal-fee-badge"><span class="badge badge-success">PAID</span></div>
+                        <div class="val" id="parent-portal-fee-badge"><span class="badge badge-warning">PENDING DUES ($450)</span></div>
+                    </div>
+                    <div class="metric-mini" style="flex:1;">
+                        <h4>Academic Average</h4>
+                        <div class="val" style="color:var(--primary);">94.6% (GPA 3.92)</div>
                     </div>
                 </div>
 
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Fee Component</th>
-                            <th>Due Date</th>
-                            <th>Amount ($)</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Term 1 Tuition Fee</td>
-                            <td>15 Jan 2026</td>
-                            <td>$1,500.00</td>
-                            <td><span class="badge badge-success">Paid</span></td>
-                        </tr>
-                        <tr>
-                            <td>Term 2 Science Lab Fee</td>
-                            <td>15 May 2026</td>
-                            <td>$1,200.00</td>
-                            <td><span class="badge badge-success">Paid</span></td>
-                        </tr>
-                        <tr>
-                            <td>Term 3 Library & Exam Fee</td>
-                            <td>15 Sep 2026</td>
-                            <td>$1,000.00</td>
-                            <td><span class="badge badge-success" id="fee-badge-term3">Paid</span></td>
-                        </tr>
-                    </tbody>
-                </table>
+                <!-- Parent Section 1: Fee Paid Status & Dues Breakdown -->
+                <div style="margin-bottom:2rem;">
+                    <h4 style="font-size:1rem; font-weight:700; margin-bottom:0.75rem;">💰 Fee Paid Status & Dues Breakdown</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fee Component</th>
+                                <th>Due Date</th>
+                                <th>Total Amount</th>
+                                <th>Paid Amount</th>
+                                <th>Outstanding Dues</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Term 1 Tuition Fee</td>
+                                <td>15 Jan 2026</td>
+                                <td>$1,500.00</td>
+                                <td>$1,500.00</td>
+                                <td>$0.00</td>
+                                <td><span class="badge badge-success">Paid</span></td>
+                            </tr>
+                            <tr>
+                                <td>Term 2 Science Lab Fee</td>
+                                <td>15 May 2026</td>
+                                <td>$1,200.00</td>
+                                <td>$1,200.00</td>
+                                <td>$0.00</td>
+                                <td><span class="badge badge-success">Paid</span></td>
+                            </tr>
+                            <tr>
+                                <td>Term 3 Library & Exam Fee</td>
+                                <td>15 Sep 2026</td>
+                                <td>$1,000.00</td>
+                                <td>$550.00</td>
+                                <td><strong>$450.00</strong></td>
+                                <td><span class="badge badge-warning" id="fee-badge-term3">Pending Dues</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Parent Section 2: Student Grades & Marks -->
+                <div style="margin-bottom:2rem;">
+                    <h4 style="font-size:1rem; font-weight:700; margin-bottom:0.75rem;">🎓 Child Academic Performance & Exam Grades</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Teacher</th>
+                                <th>Mid-Term Marks</th>
+                                <th>Final Marks</th>
+                                <th>Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Mathematics</td>
+                                <td>Dr. Ramesh Kumar</td>
+                                <td>95 / 100</td>
+                                <td>96 / 100</td>
+                                <td><span class="badge badge-success">A+</span></td>
+                            </tr>
+                            <tr>
+                                <td>Physics</td>
+                                <td>Prof. Vikram Malhotra</td>
+                                <td>92 / 100</td>
+                                <td>93 / 100</td>
+                                <td><span class="badge badge-success">A</span></td>
+                            </tr>
+                            <tr>
+                                <td>Chemistry</td>
+                                <td>Dr. Sneha Paul</td>
+                                <td>88 / 100</td>
+                                <td>90 / 100</td>
+                                <td><span class="badge badge-success">A</span></td>
+                            </tr>
+                            <tr>
+                                <td>Computer Science</td>
+                                <td>Ms. Neha Sharma</td>
+                                <td>98 / 100</td>
+                                <td>99 / 100</td>
+                                <td><span class="badge badge-success">A+</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Parent Section 3: Child Class Timetable -->
+                <div>
+                    <h4 style="font-size:1rem; font-weight:700; margin-bottom:0.75rem;">📅 Child Class Timetable (Class 10)</h4>
+                    <div id="parent-timetable-area"></div>
+                </div>
+            </div>
+        </div>
             </div>
         </div>
     </div>
@@ -911,7 +1221,46 @@
     }
 
     function renderTimetable(className) {
-        document.getElementById('timetable-render-area').innerHTML = buildTimetableHTML(className);
+        const html = buildTimetableHTML(className);
+        const adminArea = document.getElementById('timetable-render-area');
+        if (adminArea) adminArea.innerHTML = html;
+        const studentArea = document.getElementById('student-timetable-area');
+        if (studentArea) studentArea.innerHTML = html;
+        const parentArea = document.getElementById('parent-timetable-area');
+        if (parentArea) parentArea.innerHTML = html;
+    }
+
+    function handleStaffExamMarksSubmit(event) {
+        event.preventDefault();
+        const className = document.getElementById('exam-entry-class').value;
+        const studentName = document.getElementById('exam-entry-student').value;
+        const subject = document.getElementById('exam-entry-subject').value;
+        const midMarks = parseFloat(document.getElementById('exam-entry-mid').value);
+        const finalMarks = parseFloat(document.getElementById('exam-entry-final').value);
+        const avg = ((midMarks + finalMarks) / 2).toFixed(1);
+
+        let letterGrade = 'A+';
+        let badgeClass = 'badge-success';
+        if (avg < 50) { letterGrade = 'F'; badgeClass = 'badge-danger'; }
+        else if (avg < 70) { letterGrade = 'C'; badgeClass = 'badge-warning'; }
+        else if (avg < 85) { letterGrade = 'B'; badgeClass = 'badge-primary'; }
+        else if (avg < 92) { letterGrade = 'A'; badgeClass = 'badge-success'; }
+
+        const tbody = document.getElementById('staff-gradebook-tbody');
+        if (tbody) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>STD-2026-${Math.floor(1000 + Math.random() * 9000)}</td>
+                <td>${studentName}</td>
+                <td>${className}</td>
+                <td>${subject}</td>
+                <td>${midMarks} / 100</td>
+                <td>${finalMarks} / 100</td>
+                <td><span class="badge ${badgeClass}">${letterGrade} (${avg}%)</span></td>
+            `;
+            tbody.prepend(row);
+        }
+        alert(`✅ Exam Marks Saved!\nStudent: ${studentName}\nSubject: ${subject}\nAverage: ${avg}% (Grade ${letterGrade})`);
     }
 
     let enquiryCounter = 102;
